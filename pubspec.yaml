@@ -1,0 +1,21 @@
+name: foundry_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.11.1
+
+workspace:
+  - apps/liftlog
+  - packages/foundry_annotations
+  - packages/foundry_core
+  - packages/foundry_flutter
+  - packages/foundry_generator
+  - packages/foundry_navigation_flutter
+
+melos:
+  scripts:
+    analyze: melos exec -- flutter analyze
+    test: melos exec -- flutter test
+    format: melos exec -- dart format .
+dev_dependencies:
+  melos: ^7.4.0

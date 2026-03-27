@@ -1,0 +1,74 @@
+# AI Models
+*.model
+*.pb
+*.pth
+*.ckpt
+*.h5
+*.keras
+
+# AI Agents
+agents/
+agent_data/
+agent_logs/
+
+# Large Files & Datasets
+*.bin
+*.safetensors
+data/
+datasets/
+*.parquet
+
+# Python & Dependencies
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/*
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MORE
+AGENTS.md
+CLAUDE.md
+plans/*
+.dart_tool/*
+.env
+
+# Build & Distribution
+build/
+dist/
+*.egg-info/
+*.whl
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Local configuration
+.env.local
+config.local.*
+
+# Node (if using any JS tooling)
+node_modules/
+package-lock.json
+
+# Git
+.git/

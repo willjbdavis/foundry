@@ -1,0 +1,61 @@
+builders:
+  view_state_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["viewStateBuilderFactory"]
+    build_extensions: {".dart": [".view_state.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  model_state_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["modelStateBuilderFactory"]
+    build_extensions: {".dart": [".model_state.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  view_model_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["viewModelBuilderFactory"]
+    build_extensions: {".dart": [".view_model.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  model_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["modelBuilderFactory"]
+    build_extensions: {".dart": [".model.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  view_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["viewBuilderFactory"]
+    build_extensions: {".dart": [".view.g.part"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  container_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["containerBuilderFactory"]
+    build_extensions: {"lib/app_module.dart": ["lib/app_container.g.dart"]}
+    auto_apply: root_package
+    build_to: source
+
+  deep_links_builder:
+    target: ":foundry_generator"
+    import: "package:foundry_generator/foundry_generator.dart"
+    builder_factories: ["deepLinksBuilderFactory"]
+    build_extensions: {"lib/app_module.dart": ["lib/app_deep_links.g.dart"]}
+    auto_apply: root_package
+    build_to: source

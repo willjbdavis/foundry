@@ -1,0 +1,18 @@
+name: foundry_annotations
+description: "Compile-time annotations for the Foundry MVVM framework."
+resolution: workspace
+version: 1.0.0
+homepage: https://github.com/foundry-framework/foundry
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  meta: ^1.12.0
+
+dev_dependencies:
+  analyzer: ^5.13.0
+  build_runner: ^2.4.13
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
