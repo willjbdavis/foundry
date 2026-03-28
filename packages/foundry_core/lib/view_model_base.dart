@@ -44,11 +44,11 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   @protected
   Future<void> onInit() async {}
 
-  /// Lifecycle method called when the app or view is resumed (foregrounded).
+  /// Lifecycle method called when the app  is resumed (foregrounded).
   @protected
   Future<void> onResumed() async {}
 
-  /// Lifecycle method called when the app or view is paused (backgrounded).
+  /// Lifecycle method called when the app is paused (backgrounded).
   @protected
   Future<void> onPaused() async {}
 

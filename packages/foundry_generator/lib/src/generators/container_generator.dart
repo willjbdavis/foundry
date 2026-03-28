@@ -3,7 +3,7 @@ import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:foundry_annotations/foundry_annotations.dart';
 
-/// Aggregating generator that reads all @Model and @ViewModel annotations
+/// Aggregating generator that reads all @Service and @ViewModel annotations
 /// from the library pointed to by `lib/app_module.dart` and emits:
 ///
 /// - `lib/app_container.g.dart`  — `registerGeneratedGraph(Scope)`
@@ -12,7 +12,7 @@ import 'package:foundry_annotations/foundry_annotations.dart';
 /// Usage:
 /// 1. Create `lib/app_module.dart` that exports all feature libraries.
 /// 2. Run `dart run build_runner build`.
-class ContainerGenerator extends GeneratorForAnnotation<FoundryModel> {
+class ContainerGenerator extends GeneratorForAnnotation<FoundryService> {
   @override
   Future<String> generateForAnnotatedElement(
     Element element,
@@ -44,7 +44,7 @@ class ContainerGenerator extends GeneratorForAnnotation<FoundryModel> {
     final ctorParams = ctor?.parameters ?? [];
 
     final buffer = StringBuffer();
-    buffer.writeln('// [FOUNDRY:MODEL] $className');
+    buffer.writeln('// [FOUNDRY:SERVICE] $className');
     buffer.writeln('// stateful=$isStateful');
     buffer.writeln('// dependsOn=${deps.join(",")}');
     buffer.writeln(
@@ -95,7 +95,7 @@ class AppContainerBuilder implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
-    // Collect all @Model and @ViewModel annotations across the library.
+    // Collect all @Service and @ViewModel annotations across the library.
     final resolver = buildStep.resolver;
     if (!await resolver.isLibrary(buildStep.inputId)) return;
     final library = await resolver.libraryFor(buildStep.inputId);
@@ -104,10 +104,10 @@ class AppContainerBuilder implements Builder {
       root: library,
       packageName: buildStep.inputId.package,
     );
-    final modelsByName = <String, _ModelEntry>{};
+    final servicesByName = <String, _ServiceEntry>{};
     for (final reader in readers) {
       for (final annotatedElement in reader.annotatedWith(
-        TypeChecker.fromRuntime(FoundryModel),
+        TypeChecker.fromRuntime(FoundryService),
       )) {
         final element = annotatedElement.element;
         if (element is! ClassElement) continue;
@@ -139,7 +139,7 @@ class AppContainerBuilder implements Builder {
           defaultValue: 'singleton',
         );
 
-        modelsByName[element.displayName] = _ModelEntry(
+        servicesByName[element.displayName] = _ServiceEntry(
           name: element.displayName,
           isStateful: isStateful,
           dependsOn: deps,
@@ -148,20 +148,20 @@ class AppContainerBuilder implements Builder {
         );
       }
     }
-    final rawModels = modelsByName.values.toList();
-    final knownModelNames = rawModels.map((m) => m.name).toSet();
-    final models = rawModels
+    final rawServices = servicesByName.values.toList();
+    final knownServiceNames = rawServices.map((m) => m.name).toSet();
+    final services = rawServices
         .map(
           (m) => m.copyWith(
-            constructorDependencies: inferConstructorModelDependencies(
+            constructorDependencies: inferConstructorServiceDependencies(
               m.ctorParamTypes,
-              knownModelNames,
+              knownServiceNames,
             ),
           ),
         )
         .map(
           (m) => m.copyWith(
-            mergedDependencies: mergeModelDependencies(
+            mergedDependencies: mergeServiceDependencies(
               constructorDependencies: m.constructorDependencies,
               explicitDependsOn: m.dependsOn,
             ),
@@ -202,8 +202,8 @@ class AppContainerBuilder implements Builder {
     }
     final viewModels = viewModelsByName.values.toList();
 
-    // ---- Topological sort of models ----
-    final sortedModels = _topologicalSort(models);
+    // ---- Topological sort of services ----
+    final sortedServices = _topologicalSort(services);
 
     // ---- Collect @View entries for deep link coordinator ----
     final viewsWithDeepLinks = <_ViewDeepLinkEntry>[];
@@ -229,7 +229,7 @@ class AppContainerBuilder implements Builder {
     // ---- Generate app_container.g.dart ----
     await _writeContainerFile(
       buildStep,
-      sortedModels,
+      sortedServices,
       viewModels,
       viewsWithDeepLinks,
       importUris,
@@ -238,7 +238,7 @@ class AppContainerBuilder implements Builder {
 
   Future<void> _writeContainerFile(
     BuildStep buildStep,
-    List<_ModelEntry> models,
+    List<_ServiceEntry> services,
     List<_ViewModelEntry> viewModels,
     List<_ViewDeepLinkEntry> viewsWithDeepLinks,
     Set<String> importUris,
@@ -263,7 +263,7 @@ class AppContainerBuilder implements Builder {
     }
     buffer.writeln('');
     buffer.writeln(
-      '/// Registers all generated models and view models in [scope].',
+      '/// Registers all generated services and view models in [scope].',
     );
     buffer.writeln('///');
     buffer.writeln(
@@ -271,18 +271,18 @@ class AppContainerBuilder implements Builder {
     );
     buffer.writeln('void registerGeneratedGraph(Scope scope) {');
 
-    for (final model in models) {
-      final String lifetime = 'Lifetime.${model.lifetime}';
-      if (model.ctorParamTypes.isEmpty) {
+    for (final service in services) {
+      final String lifetime = 'Lifetime.${service.lifetime}';
+      if (service.ctorParamTypes.isEmpty) {
         buffer.writeln(
-          '  scope.register<${model.name}>((_) => ${model.name}(), lifetime: $lifetime);',
+          '  scope.register<${service.name}>((_) => ${service.name}(), lifetime: $lifetime);',
         );
       } else {
-        final args = model.ctorParamTypes
+        final args = service.ctorParamTypes
             .map((t) => 's.resolve<$t>()')
             .join(', ');
         buffer.writeln(
-          '  scope.register<${model.name}>((s) => ${model.name}($args), lifetime: $lifetime);',
+          '  scope.register<${service.name}>((s) => ${service.name}($args), lifetime: $lifetime);',
         );
       }
     }
@@ -304,7 +304,7 @@ class AppContainerBuilder implements Builder {
     buffer.writeln('}');
     buffer.writeln('');
     buffer.writeln(
-      '/// Resolves generated singleton models and runs async initialization.',
+      '/// Resolves generated singleton services and runs async initialization.',
     );
     buffer.writeln('///');
     buffer.writeln(
@@ -313,13 +313,13 @@ class AppContainerBuilder implements Builder {
     buffer.writeln(
       'Future<void> initializeGeneratedGraph(Scope scope) async {',
     );
-    for (final model in models) {
-      if (model.lifetime == 'singleton') {
+    for (final service in services) {
+      if (service.lifetime == 'singleton') {
         buffer.writeln(
-          '  final Object _${model.name} = scope.resolve<${model.name}>();',
+          '  final Object _${service.name} = scope.resolve<${service.name}>();',
         );
-        buffer.writeln('  if (_${model.name} is AsyncInitializable) {');
-        buffer.writeln('    await _${model.name}.initialize();');
+        buffer.writeln('  if (_${service.name} is AsyncInitializable) {');
+        buffer.writeln('    await _${service.name}.initialize();');
         buffer.writeln('  }');
       }
     }
@@ -368,9 +368,9 @@ class AppContainerBuilder implements Builder {
       '  static final Map<Type, void Function(Scope, Object Function(Scope))>',
     );
     buffer.writeln('      _typeRegistry = {');
-    for (final model in models) {
+    for (final service in services) {
       buffer.writeln(
-        '    ${model.name}: (s, f) => s.register<${model.name}>((inner) => f(inner) as ${model.name}, lifetime: Lifetime.${model.lifetime}),',
+        '    ${service.name}: (s, f) => s.register<${service.name}>((inner) => f(inner) as ${service.name}, lifetime: Lifetime.${service.lifetime}),',
       );
     }
     for (final vm in viewModels) {
@@ -487,11 +487,11 @@ String _normalizeLifetime(String? value, {required String defaultValue}) {
 }
 
 // ---------------------------------------------------------------------------
-// Data models
+// Data services
 // ---------------------------------------------------------------------------
 
-class _ModelEntry {
-  _ModelEntry({
+class _ServiceEntry {
+  _ServiceEntry({
     required this.name,
     required this.isStateful,
     required this.dependsOn,
@@ -509,11 +509,11 @@ class _ModelEntry {
   final List<String> constructorDependencies;
   final List<String> mergedDependencies;
 
-  _ModelEntry copyWith({
+  _ServiceEntry copyWith({
     List<String>? constructorDependencies,
     List<String>? mergedDependencies,
   }) {
-    return _ModelEntry(
+    return _ServiceEntry(
       name: name,
       isStateful: isStateful,
       dependsOn: dependsOn,
@@ -546,27 +546,28 @@ class _ViewDeepLinkEntry {
 /// Kahn's algorithm topological sort.  Throws [InvalidGenerationSourceError]
 /// on cycles (since we're inside a builder we throw [StateError] instead —
 /// build_runner will report it cleanly).
-List<_ModelEntry> _topologicalSort(List<_ModelEntry> models) {
-  final nameToEntry = {for (final m in models) m.name: m};
+List<_ServiceEntry> _topologicalSort(List<_ServiceEntry> services) {
+  final nameToEntry = {for (final m in services) m.name: m};
   final dependencyMap = <String, List<String>>{
-    for (final m in models) m.name: m.mergedDependencies,
+    for (final m in services) m.name: m.mergedDependencies,
   };
   final sortedNames = topologicallySortDependencyGraph(dependencyMap);
 
   return sortedNames.map((name) => nameToEntry[name]!).toList();
 }
 
-/// Returns constructor parameter types that also exist as generated @Model names.
+/// Returns constructor parameter types that also exist as generated @Service names.
 ///
 /// This keeps constructor wiring and dependency ordering aligned so dependency
 /// declarations do not drift.
-List<String> inferConstructorModelDependencies(
+List<String> inferConstructorServiceDependencies(
   List<String> ctorParamTypes,
-  Set<String> knownModelNames,
+  Set<String> knownServiceNames,
 ) {
   final inferred = <String>[];
   for (final paramType in ctorParamTypes) {
-    if (knownModelNames.contains(paramType) && !inferred.contains(paramType)) {
+    if (knownServiceNames.contains(paramType) &&
+        !inferred.contains(paramType)) {
       inferred.add(paramType);
     }
   }
@@ -577,7 +578,7 @@ List<String> inferConstructorModelDependencies(
 ///
 /// Constructor dependencies are primary and explicit dependencies are appended
 /// only when they add extra ordering constraints.
-List<String> mergeModelDependencies({
+List<String> mergeServiceDependencies({
   required List<String> constructorDependencies,
   required List<String> explicitDependsOn,
 }) {
@@ -604,11 +605,11 @@ List<String> topologicallySortDependencyGraph(
   final inDegree = {for (final node in dependencyMap.keys) node: 0};
 
   for (final entry in dependencyMap.entries) {
-    final modelName = entry.key;
+    final serviceName = entry.key;
     for (final dep in entry.value) {
       if (dependencyMap.containsKey(dep)) {
-        graph[dep]!.add(modelName);
-        inDegree[modelName] = (inDegree[modelName] ?? 0) + 1;
+        graph[dep]!.add(serviceName);
+        inDegree[serviceName] = (inDegree[serviceName] ?? 0) + 1;
       }
     }
   }
@@ -640,7 +641,7 @@ List<String> topologicallySortDependencyGraph(
         .where((name) => !sorted.contains(name))
         .join(', ');
     throw StateError(
-      'Circular dependency detected in @Model graph: $cycle. '
+      'Circular dependency detected in @Service graph: $cycle. '
       'Check constructor dependencies and `dependsOn` fields for cycles.',
     );
   }

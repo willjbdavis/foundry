@@ -5,7 +5,7 @@ import '../persistence/hive_database_service.dart';
 
 part 'settings_repository.g.dart';
 
-@foundry.FoundryModel()
+@foundry.FoundryService()
 class SettingsRepository {
   SettingsRepository(this._databaseService);
 

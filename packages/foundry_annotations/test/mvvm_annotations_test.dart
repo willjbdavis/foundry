@@ -16,13 +16,13 @@ void main() {
     });
 
     test('ModelState annotation defaults are correct', () {
-      const FoundryModelState modelState = FoundryModelState();
+      const FoundryServiceState modelState = FoundryServiceState();
       expect(modelState.persistent, isFalse);
       expect(modelState.name, isNull);
     });
 
     test('ModelState supports persistent and name parameters', () {
-      const FoundryModelState modelState = FoundryModelState(
+      const FoundryServiceState modelState = FoundryServiceState(
         persistent: true,
         name: 'SessionState',
       );
@@ -46,7 +46,7 @@ void main() {
     });
 
     test('Model annotation defaults are correct', () {
-      const FoundryModel model = FoundryModel();
+      const FoundryService model = FoundryService();
       expect(model.stateful, isFalse);
       expect(model.dependsOn, isNull);
       expect(model.name, isNull);
@@ -54,7 +54,7 @@ void main() {
     });
 
     test('Model supports all parameters', () {
-      const FoundryModel model = FoundryModel(
+      const FoundryService model = FoundryService(
         stateful: true,
         dependsOn: <Type>[String, int],
         name: 'NotificationService',

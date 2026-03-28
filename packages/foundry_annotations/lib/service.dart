@@ -1,18 +1,18 @@
-/// Annotation to mark a Model class.
+/// Annotation to mark a Service class.
 ///
-/// Can be stateless or stateful. Stateful models can depend on other models.
-class FoundryModel {
-  const FoundryModel({
+/// Can be stateless or stateful. Stateful services can depend on other services.
+class FoundryService {
+  const FoundryService({
     this.stateful = false,
     this.dependsOn,
     this.name,
     this.lifetime = 'singleton',
   });
 
-  /// Whether this is a stateful model (with `StatefulModel<T>` base class).
+  /// Whether this is a stateful service (with `StatefulService<T>` base class).
   final bool stateful;
 
-  /// List of other models that this model depends on.
+  /// List of other services that this service depends on.
   final List<Type>? dependsOn;
 
   /// Optional name for generated code.

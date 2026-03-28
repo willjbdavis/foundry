@@ -32,7 +32,7 @@ import 'package:lift_log/features/workout/exercise_picker_view.dart';
 import 'package:lift_log/features/workout/workout_session_setup_view.dart';
 import 'package:lift_log/features/workout/workout_summary_view.dart';
 
-/// Registers all generated models and view models in [scope].
+/// Registers all generated services and view models in [scope].
 ///
 /// Call this once at app startup after creating your [GlobalScope].
 void registerGeneratedGraph(Scope scope) {
@@ -57,7 +57,7 @@ void registerGeneratedGraph(Scope scope) {
   scope.register<WorkoutSummaryViewModel>((s) => WorkoutSummaryViewModel(s.resolve<WorkoutSessionModel>()), lifetime: Lifetime.scoped);
 }
 
-/// Resolves generated singleton models and runs async initialization.
+/// Resolves generated singleton services and runs async initialization.
 ///
 /// Call this after [registerGeneratedGraph] during app startup.
 Future<void> initializeGeneratedGraph(Scope scope) async {

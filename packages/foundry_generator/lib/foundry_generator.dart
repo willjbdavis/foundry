@@ -2,16 +2,16 @@ import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'src/generators/view_state_generator.dart';
-import 'src/generators/model_state_generator.dart';
+import 'src/generators/service_state_generator.dart';
 import 'src/generators/view_model_generator.dart';
-import 'src/generators/model_generator.dart';
+import 'src/generators/service_generator.dart';
 import 'src/generators/view_generator.dart';
 import 'src/generators/container_generator.dart';
 
 export 'src/generators/view_state_generator.dart';
-export 'src/generators/model_state_generator.dart';
+export 'src/generators/service_state_generator.dart';
 export 'src/generators/view_model_generator.dart';
-export 'src/generators/model_generator.dart';
+export 'src/generators/service_generator.dart';
 export 'src/generators/view_generator.dart';
 export 'src/generators/container_generator.dart';
 export 'src/generators/generator_utils.dart';
@@ -19,14 +19,14 @@ export 'src/generators/generator_utils.dart';
 Builder viewStateBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewStateGenerator()], 'view_state_builder');
 
-Builder modelStateBuilderFactory(BuilderOptions options) =>
-    SharedPartBuilder([ModelStateGenerator()], 'model_state_builder');
+Builder serviceStateBuilderFactory(BuilderOptions options) =>
+    SharedPartBuilder([ServiceStateGenerator()], 'service_state_builder');
 
 Builder viewModelBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewModelGenerator()], 'view_model_builder');
 
-Builder modelBuilderFactory(BuilderOptions options) =>
-    SharedPartBuilder([ModelGenerator()], 'model_builder');
+Builder serviceBuilderFactory(BuilderOptions options) =>
+    SharedPartBuilder([ServiceGenerator()], 'service_builder');
 
 Builder viewBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewGenerator()], 'view_builder');

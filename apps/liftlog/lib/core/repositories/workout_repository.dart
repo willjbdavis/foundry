@@ -16,7 +16,7 @@ class WorkoutRepositoryException implements Exception {
   String toString() => message;
 }
 
-@foundry.FoundryModel()
+@foundry.FoundryService()
 class WorkoutRepository {
   WorkoutRepository(this._databaseService);
 

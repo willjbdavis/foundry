@@ -6,7 +6,7 @@ import 'settings_repository.dart';
 
 part 'app_theme_model.g.dart';
 
-@foundry.FoundryModel()
+@foundry.FoundryService()
 class AppThemeModel extends ChangeNotifier implements AsyncInitializable {
   AppThemeModel(this._settingsRepository);
 

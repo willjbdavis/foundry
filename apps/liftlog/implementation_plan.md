@@ -263,7 +263,7 @@ Deliver Lift Log as a complete Foundry MVVM sample app with:
 
 - Keep all navigation typed via Foundry route generation.
 - Emit initial ViewState in every ViewModel constructor.
-- Avoid direct Hive access from views and view models; use repositories or models.
+- Avoid direct Hive access from views and view models; use repositories or services.
 - Persist active workout updates incrementally to prevent data loss.
 - Keep deep links for stable routes only.
 
@@ -277,8 +277,8 @@ Deliver Lift Log as a complete Foundry MVVM sample app with:
 
 ## Suggested Implementation Order Inside Each Phase
 
-1. Define domain models and state contracts.
-2. Implement repositories and model logic.
+1. Define domain services and state contracts.
+2. Implement repositories and service logic.
 3. Implement ViewModels.
 4. Implement Views.
 5. Wire navigation and deep links.

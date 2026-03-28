@@ -11,9 +11,9 @@ Compile-time annotations for the [Foundry MVVM framework](../foundry_core). This
 | Annotation | Use it on | Purpose |
 |---|---|---|
 | `@FoundryViewState()` | Immutable UI state classes | Generates `copyWith`, value equality, and `toString` helpers. |
-| `@FoundryModelState()` | Immutable model/domain state classes | Same as `@FoundryViewState`, with optional persistence metadata. |
+| `@FoundryServiceState()` | Immutable model/domain state classes | Same as `@FoundryViewState`, with optional persistence metadata. |
 | `@FoundryViewModel()` | Classes extending `FoundryViewModel<T>` | Enables validation and generates helper methods like `safeAsync`. |
-| `@FoundryModel()` | Stateless services or `StatefulModel<T>` classes | Marks DI-managed domain models and validates dependencies. |
+| `@FoundryService()` | Stateless services or `StatefulService<T>` classes | Marks DI-managed domain services and validates dependencies. |
 | `@FoundryView()` | Flutter view widgets | Generates typed route helpers and deep-link wiring metadata. |
 
 ---
@@ -66,16 +66,16 @@ The generated mixin supplies the tedious value-type behavior so your ViewModel c
 
 ---
 
-## `@FoundryModelState`
+## `@FoundryServiceState`
 
-Use `@FoundryModelState()` for immutable state owned by a `@FoundryModel(stateful: true)` model. The optional `persistent` flag lets the generator expose whether the model state should be treated as persistent.
+Use `@FoundryServiceState()` for immutable state owned by a `@FoundryService(stateful: true)` service. The optional `persistent` flag lets the generator expose whether the service state should be treated as persistent.
 
 ```dart
 import 'package:foundry_annotations/foundry_annotations.dart';
 
 part 'cart_state.g.dart';
 
-@FoundryModelState(persistent: true)
+@FoundryServiceState(persistent: true)
 class CartState with _$CartStateMixin {
   final List<String> itemIds;
 
@@ -114,13 +114,13 @@ class HomeViewModel extends FoundryViewModel<HomeState>
 }
 ```
 
-One important architecture rule is enforced at build time: a `@FoundryViewModel` cannot depend directly on another `@FoundryViewModel`. Shared logic belongs in a `@FoundryModel` instead.
+One important architecture rule is enforced at build time: a `@FoundryViewModel` cannot depend directly on another `@FoundryViewModel`. Shared logic belongs in a `@FoundryService` instead.
 
 ---
 
-## `@FoundryModel`
+## `@FoundryService`
 
-Annotate services, repositories, and domain models that should participate in Foundry's generated dependency graph.
+Annotate services, repositories, and domain services that should participate in Foundry's generated dependency graph.
 
 ```dart
 import 'package:foundry_annotations/foundry_annotations.dart';
@@ -128,8 +128,8 @@ import 'package:foundry_core/foundry_core.dart';
 
 part 'cart_model.g.dart';
 
-@FoundryModel(stateful: true)
-class CartModel extends StatefulModel<CartState> {
+@FoundryService(stateful: true)
+class CartModel extends StatefulService<CartState> {
   CartModel() {
     emitNewState(const CartState());
   }

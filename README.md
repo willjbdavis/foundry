@@ -6,8 +6,8 @@ This repository is a workspace containing the full stack:
 
 | Package | Role |
 |---|---|
-| `foundry_annotations` | Marker annotations such as `@FoundryViewState`, `@FoundryViewModel`, `@FoundryModel`, and `@FoundryView`. |
-| `foundry_core` | Runtime primitives: `FoundryViewModel`, `StatefulModel`, `Scope`, `GlobalScope`, and DI. |
+| `foundry_annotations` | Marker annotations such as `@FoundryViewState`, `@FoundryViewModel`, `@FoundryService`, and `@FoundryView`. |
+| `foundry_core` | Runtime primitives: `FoundryViewModel`, `StatefulService`, `Scope`, `GlobalScope`, and DI. |
 | `foundry_flutter` | Flutter integration: `FoundryScope`, `FoundryView`, `FoundryBuilder`, `FoundryListener`, and `FoundrySelectorBuilder`. |
 | `foundry_navigation_flutter` | Typed route contracts, runtime result validation, and `FoundryNavigator`/`FoundryNavigation` APIs. |
 | `foundry_generator` | Code generation and architecture enforcement driven by your annotations. |
@@ -118,7 +118,7 @@ import 'package:foundry_annotations/foundry_annotations.dart';
 
 part 'greeting_repository.g.dart';
 
-@FoundryModel()
+@FoundryService()
 class GreetingRepository {
   Future<String> loadGreeting() async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
@@ -127,13 +127,13 @@ class GreetingRepository {
 }
 ```
 
-The `@FoundryModel()` annotation registers `GreetingRepository` in the generated graph. Because `HomeViewModel` takes it as a constructor parameter, the generator infers the dependency edge and emits `GreetingRepository` **before** `HomeViewModel` in the registration output — no manual ordering needed.
+The `@FoundryService()` annotation registers `GreetingRepository` in the generated graph. Because `HomeViewModel` takes it as a constructor parameter, the generator infers the dependency edge and emits `GreetingRepository` **before** `HomeViewModel` in the registration output — no manual ordering needed.
 
 If you need to declare an ordering constraint that is not expressible through constructor injection (for example, two models that communicate via subscriptions), use `dependsOn`:
 
 ```dart
-@FoundryModel(stateful: true, dependsOn: [GreetingRepository])
-class SomeOtherModel extends StatefulModel<SomeState> {
+@FoundryService(stateful: true, dependsOn: [GreetingRepository])
+class SomeOtherModel extends StatefulService<SomeState> {
   final GreetingRepository _repo;
   SomeOtherModel(this._repo) { ... }
 }
@@ -269,8 +269,8 @@ void main() async {
   // 2. Register all generated factories (nothing is instantiated yet).
   registerGeneratedGraph(scope);
 
-  // 3. Resolve and initialize singleton models in dependency order.
-  //    Any @FoundryModel class that implements AsyncInitializable will have
+  // 3. Resolve and initialize singleton services in dependency order.
+  //    Any @FoundryService class that implements AsyncInitializable will have
   //    initialize() called here before the UI mounts.
   await initializeGeneratedGraph(scope);
 
@@ -363,15 +363,15 @@ class HomeViewModel extends FoundryViewModel<HomeState>
 }
 ```
 
-The generator also uses constructor parameters to infer dependency ordering between `@FoundryModel` registrations, so dependencies are always registered and initialized before their dependents.
+The generator also uses constructor parameters to infer dependency ordering between `@FoundryService` registrations, so dependencies are always registered and initialized before their dependents.
 
 ### `dependsOn` (additive ordering hints)
 
 When two models communicate via subscriptions rather than direct constructor references, you can declare an explicit ordering constraint:
 
 ```dart
-@FoundryModel(stateful: true, dependsOn: [UserRepository])
-class NotificationModel extends StatefulModel<NotificationState> {
+@FoundryService(stateful: true, dependsOn: [UserRepository])
+class NotificationModel extends StatefulService<NotificationState> {
   final UserRepository _users;
 
   NotificationModel(this._users) { ... }
@@ -389,13 +389,13 @@ class NotificationModel extends StatefulModel<NotificationState> {
 
 | Annotation | Default lifetime | Meaning |
 |---|---|---|
-| `@FoundryModel()` | `singleton` | One shared instance for the app lifetime |
+| `@FoundryService()` | `singleton` | One shared instance for the app lifetime |
 | `@FoundryViewModel()` | `scoped` | One instance per view scope, disposed with the view — see below |
 
 Override when needed:
 
 ```dart
-@FoundryModel(lifetime: 'transient')   // new instance every resolve
+@FoundryService(lifetime: 'transient')   // new instance every resolve
 @FoundryViewModel(lifetime: 'singleton') // shared across all views
 ```
 
@@ -410,7 +410,7 @@ Models that need async resource setup (database open, cache warmup, migrations) 
 ```dart
 import 'package:foundry_core/foundry_core.dart';
 
-@FoundryModel()
+@FoundryService()
 class DatabaseService implements AsyncInitializable {
   bool _ready = false;
 
@@ -429,10 +429,10 @@ The generated `initializeGeneratedGraph(scope)` call in `main()` resolves every 
 
 ## How The Pieces Fit Together
 
-1. `@FoundryViewState`, `@FoundryModel`, `@FoundryViewModel`, and `@FoundryView` describe your feature.
+1. `@FoundryViewState`, `@FoundryService`, `@FoundryViewModel`, and `@FoundryView` describe your feature.
 2. `foundry_generator` reads constructor signatures and annotations, validates architecture rules, and generates helper code.
-3. `registerGeneratedGraph(scope)` registers lazy factories for every model and ViewModel in the correct dependency order.
-4. `await initializeGeneratedGraph(scope)` resolves singleton models and runs async startup initialization in dependency order before any UI mounts.
+3. `registerGeneratedGraph(scope)` registers lazy factories for every service and ViewModel in the correct dependency order.
+4. `await initializeGeneratedGraph(scope)` resolves singleton services and runs async startup initialization in dependency order before any UI mounts.
 5. `FoundryScope` exposes that scope to the widget tree.
 6. When a `FoundryView` mounts, the framework creates a per-view child scope. The ViewModel factory (registered in the root scope) is resolved into this child scope, producing an isolated instance. The child scope and its ViewModel are disposed when the view leaves the widget tree. The view rebuilds whenever the ViewModel emits a new state.
 

@@ -8,7 +8,7 @@ part 'rest_timer_service.g.dart';
 const int _defaultRestTimerSeconds = 90;
 const int maxRestTimerSeconds = 3599;
 
-@foundry.FoundryModelState()
+@foundry.FoundryServiceState()
 class RestTimerState with _$RestTimerStateMixin {
   const RestTimerState({
     this.totalSeconds = _defaultRestTimerSeconds,
@@ -23,8 +23,8 @@ class RestTimerState with _$RestTimerStateMixin {
   final bool showRestFinishedBanner;
 }
 
-@foundry.FoundryModel(stateful: true)
-class RestTimerService extends StatefulModel<RestTimerState> {
+@foundry.FoundryService(stateful: true)
+class RestTimerService extends StatefulService<RestTimerState> {
   RestTimerService() {
     emitNewState(const RestTimerState());
   }

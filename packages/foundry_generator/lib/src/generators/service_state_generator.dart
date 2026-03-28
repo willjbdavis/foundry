@@ -3,11 +3,11 @@ import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:foundry_annotations/foundry_annotations.dart';
 
-/// Generator for @FoundryModelState annotations.
+/// Generator for @FoundryServiceState annotations.
 ///
 /// Emits a mixin `_$${ClassName}Mixin` analogous to [ViewStateGenerator],
 /// plus detects `persistent: true` for the container generator.
-class ModelStateGenerator extends GeneratorForAnnotation<FoundryModelState> {
+class ServiceStateGenerator extends GeneratorForAnnotation<FoundryServiceState> {
   @override
   Future<String> generateForAnnotatedElement(
     Element element,
@@ -16,7 +16,7 @@ class ModelStateGenerator extends GeneratorForAnnotation<FoundryModelState> {
   ) async {
     if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
-        '@FoundryModelState can only be used on classes.',
+        '@FoundryServiceState can only be used on classes.',
         element: element,
       );
     }
@@ -37,7 +37,7 @@ class ModelStateGenerator extends GeneratorForAnnotation<FoundryModelState> {
       '// ignore_for_file: unused_element, annotate_overrides, prefer_interpolation_to_compose_strings',
     );
     buffer.writeln('');
-    buffer.writeln('// Generated code for @FoundryModelState $className');
+    buffer.writeln('// Generated code for @FoundryServiceState $className');
     buffer.writeln('');
     buffer.writeln('const $sentinelName = Object();');
     buffer.writeln('');

@@ -15,7 +15,7 @@ class ExerciseValidationException implements Exception {
   String toString() => message;
 }
 
-@foundry.FoundryModel()
+@foundry.FoundryService()
 class ExerciseRepository {
   ExerciseRepository(this._databaseService);
 

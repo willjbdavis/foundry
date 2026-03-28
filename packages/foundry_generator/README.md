@@ -5,19 +5,19 @@ Compile-time generation and architecture validation for the [Foundry MVVM framew
 `foundry_generator` is the package that turns the lightweight annotations in `foundry_annotations` into real code: immutable-state helpers, ViewModel utility mixins, typed routes, and aggregated registration graphs.
 
 Generated `registerGeneratedGraph()` registrations emit DI lifetimes:
-- `@FoundryModel` defaults to `Lifetime.singleton`
+- `@FoundryService` defaults to `Lifetime.singleton`
 - `@FoundryViewModel` defaults to `Lifetime.scoped`
 
 Generated `app_container.g.dart` also includes:
 - `Future<void> initializeGeneratedGraph(Scope scope)`
 
-`initializeGeneratedGraph` resolves generated singleton models and calls
+`initializeGeneratedGraph` resolves generated singleton services and calls
 `initialize()` for instances implementing `AsyncInitializable`.
 
 Dependency ordering is constructor-first:
-- constructor parameters that reference other generated `@FoundryModel` types are
+- constructor parameters that reference other generated `@FoundryService` types are
   treated as dependency edges automatically
-- `@FoundryModel(dependsOn: [...])` is additive for extra ordering constraints that
+- `@FoundryService(dependsOn: [...])` is additive for extra ordering constraints that
   constructor injection cannot express directly
 - registration and singleton initialization are emitted in topological order so
   dependencies run before dependents
@@ -29,9 +29,9 @@ Dependency ordering is constructor-first:
 | Input | Generated output | Purpose |
 |---|---|---|
 | `@FoundryViewState()` | `_$ClassMixin` | Adds `copyWith`, equality, `hashCode`, `toString`, and error-field metadata. |
-| `@FoundryModelState()` | `_$ClassMixin` + `$ClassIsPersistent` | Same as `@FoundryViewState`, with persistence metadata. |
+| `@FoundryServiceState()` | `_$ClassMixin` + `$ClassIsPersistent` | Same as `@FoundryViewState`, with persistence metadata. |
 | `@FoundryViewModel()` | `_$ClassHelpers` | Adds `safeAsync`, plus `setError` / `clearError` when the state exposes `error`. |
-| `@FoundryModel()` | Shared-part output used for validation | Validates model shape and emits a registration marker for the aggregate builder. |
+| `@FoundryService()` | Shared-part output used for validation | Validates service shape and emits a registration marker for the aggregate builder. |
 | `@FoundryView()` | `ClassRoute`, `BuildContext` push extension, optional `matchDeepLink` | Produces typed navigation helpers. |
 | `lib/app_module.dart` | `app_container.g.dart`, `app_deep_links.g.dart` | Aggregates reachable models, ViewModels, and deep-link-enabled views. |
 
@@ -74,7 +74,7 @@ await initializeGeneratedGraph(scope);
 instantiation.
 
 `initializeGeneratedGraph` is the generated startup pass that resolves
-singleton models and invokes `initialize()` for `AsyncInitializable`
+singleton services and invokes `initialize()` for `AsyncInitializable`
 implementations in dependency-safe order.
 
 For active development:
@@ -89,12 +89,12 @@ dart run build_runner watch --delete-conflicting-outputs
 
 The aggregated outputs are driven from a single source file in your app package: `lib/app_module.dart`.
 
-Create that file and export every library that contains a `@FoundryModel`, `@FoundryViewModel`, or `@FoundryView` that should participate in the generated graph:
+Create that file and export every library that contains a `@FoundryService`, `@FoundryViewModel`, or `@FoundryView` that should participate in the generated graph:
 
 ```dart
 library app_module;
 
-export 'features/auth/auth_model.dart';
+export 'features/auth/auth_service.dart';
 export 'features/auth/auth_view_model.dart';
 export 'features/home/home_view.dart';
 export 'features/home/home_view_model.dart';
@@ -102,8 +102,8 @@ export 'features/home/home_view_model.dart';
 
 Discovery rules:
 
-- `@FoundryViewState` and `@FoundryModelState` are discovered file-by-file by the shared-part builders.
-- `@FoundryModel`, `@FoundryViewModel`, and deep-link-enabled `@FoundryView` classes must be reachable from `lib/app_module.dart`.
+- `@FoundryViewState` and `@FoundryServiceState` are discovered file-by-file by the shared-part builders.
+- `@FoundryService`, `@FoundryViewModel`, and deep-link-enabled `@FoundryView` classes must be reachable from `lib/app_module.dart`.
 - Exports are traversed recursively from `app_module.dart`; barrel files are supported.
 - If a file is not exported from `app_module.dart`, it will not appear in aggregated registration or deep-link outputs.
 
@@ -163,14 +163,14 @@ The sentinel-based `copyWith` lets callers explicitly write `error: null` withou
 
 ---
 
-## `@FoundryModelState`
+## `@FoundryServiceState`
 
-`@FoundryModelState()` behaves like `@FoundryViewState()`, but is intended for state owned by a `StatefulModel<S>`.
+`@FoundryServiceState()` behaves like `@FoundryViewState()`, but is intended for state owned by a `StatefulService<S>`.
 
 ```dart
 part 'cart_state.g.dart';
 
-@FoundryModelState(persistent: true)
+@FoundryServiceState(persistent: true)
 class CartState with _$CartStateMixin {
   final List<String> itemIds;
 
@@ -254,15 +254,15 @@ mixin _$HomeViewModelHelpers on FoundryViewModel<HomeState> {
 
 ---
 
-## `@FoundryModel`
+## `@FoundryService`
 
-`@FoundryModel()` validates your domain model and emits a marker that the aggregate container builder can discover.
+`@FoundryService()` validates your domain service and emits a marker that the aggregate container builder can discover.
 
 ```dart
 part 'auth_model.g.dart';
 
-@FoundryModel(stateful: true)
-class AuthModel extends StatefulModel<AuthState> {
+@FoundryService(stateful: true)
+class AuthModel extends StatefulService<AuthState> {
   AuthModel() {
     emitNewState(const AuthState());
   }
@@ -270,7 +270,7 @@ class AuthModel extends StatefulModel<AuthState> {
 
 part 'checkout_model.g.dart';
 
-@FoundryModel(dependsOn: [AuthModel])
+@FoundryService(dependsOn: [AuthModel])
 class CheckoutModel {
   final AuthModel _auth;
 
@@ -280,8 +280,8 @@ class CheckoutModel {
 
 ### Build-time rules
 
-- `@FoundryModel(stateful: true)` must extend `StatefulModel<S>`.
-- Every type listed in `dependsOn` must itself be annotated with `@FoundryModel()`.
+- `@FoundryService(stateful: true)` must extend `StatefulService<S>`.
+- Every type listed in `dependsOn` must itself be annotated with `@FoundryService()`.
 - Constructor-inferred and explicit `dependsOn` edges are merged into one
   dependency graph for ordering and cycle detection.
 
@@ -413,8 +413,8 @@ If you want more explicit setup, you can also create a `GlobalScope` or child `S
 |---|---|
 | `@FoundryViewModel` must extend `FoundryViewModel<S>` | Build error |
 | `@FoundryViewModel` cannot depend on another `@FoundryViewModel` | Build error |
-| `@FoundryModel(stateful: true)` must extend `StatefulModel<S>` | Build error |
-| `dependsOn` entries must be `@FoundryModel` types | Build error |
+| `@FoundryService(stateful: true)` must extend `StatefulService<S>` | Build error |
+| `dependsOn` entries must be `@FoundryService` types | Build error |
 | Circular constructor/dependency graph (merged) | Build error |
 | `@FoundryView(deepLink:)` with path params but no args/factory | Build error |
 | Circular explicit-only `dependsOn` graph | Build error |

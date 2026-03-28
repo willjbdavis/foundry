@@ -8,11 +8,11 @@ builders:
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]
 
-  model_state_builder:
+  service_state_builder:
     target: ":foundry_generator"
     import: "package:foundry_generator/foundry_generator.dart"
-    builder_factories: ["modelStateBuilderFactory"]
-    build_extensions: {".dart": [".model_state.g.part"]}
+    builder_factories: ["serviceStateBuilderFactory"]
+    build_extensions: {".dart": [".service_state.g.part"]}
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]
@@ -26,11 +26,11 @@ builders:
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]
 
-  model_builder:
+  service_builder:
     target: ":foundry_generator"
     import: "package:foundry_generator/foundry_generator.dart"
-    builder_factories: ["modelBuilderFactory"]
-    build_extensions: {".dart": [".model.g.part"]}
+    builder_factories: ["serviceBuilderFactory"]
+    build_extensions: {".dart": [".service.g.part"]}
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]

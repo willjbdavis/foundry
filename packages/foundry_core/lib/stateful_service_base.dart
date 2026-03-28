@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'initializable.dart';
 import 'state_emitter.dart';
 
-/// Base class for stateful models.
-abstract class StatefulModel<S> implements StateEmitter<S>, AsyncInitializable {
+/// Base class for stateful services.
+abstract class StatefulService<S>
+    implements StateEmitter<S>, AsyncInitializable {
   S? _state;
   StreamController<S>? _controller;
   final List<void Function(S)> _listeners = <void Function(S)>[];
@@ -47,9 +48,9 @@ abstract class StatefulModel<S> implements StateEmitter<S>, AsyncInitializable {
     }
   }
 
-  /// Subscribe to state changes from this model.
+  /// Subscribe to state changes from this service.
   ///
-  /// Call in dependent Model's onInit().
+  /// Call in dependent service's onInit().
   void subscribe(void Function(S state) listener) {
     if (!_listeners.contains(listener)) {
       _listeners.add(listener);
@@ -58,14 +59,14 @@ abstract class StatefulModel<S> implements StateEmitter<S>, AsyncInitializable {
 
   /// Unsubscribe listener.
   ///
-  /// Call in dependent Model's onDispose().
+  /// Call in dependent service's onDispose().
   void unsubscribe(void Function(S state)? listener) {
     if (listener != null) {
       _listeners.remove(listener);
     }
   }
 
-  /// Lifecycle method called when the model is initialized.
+  /// Lifecycle method called when the service is initialized.
   @protected
   Future<void> onInit() async {}
 
@@ -77,7 +78,7 @@ abstract class StatefulModel<S> implements StateEmitter<S>, AsyncInitializable {
   @protected
   Future<void> onPaused() async {}
 
-  /// Lifecycle method called when the model is disposed.
+  /// Lifecycle method called when the service is disposed.
   @protected
   Future<void> onDispose() async {}
 

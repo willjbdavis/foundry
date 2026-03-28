@@ -4,7 +4,7 @@ import 'package:foundry_annotations/foundry_annotations.dart' as foundry;
 
 part 'hive_database_service.g.dart';
 
-@foundry.FoundryModel()
+@foundry.FoundryService()
 class HiveDatabaseService implements AsyncInitializable {
   static const String settingsBoxName = 'settingsBox';
   static const String exerciseDefinitionsBoxName = 'exerciseDefinitionsBox';

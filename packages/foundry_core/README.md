@@ -12,7 +12,7 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 |---|---|---|
 | Reactive state contract | `StateEmitter<S>` | Exposes the current `state` and a `states` stream of future emissions. |
 | ViewModel base | `FoundryViewModel<S>` | Owns UI state and lifecycle hooks like `onInit`, `onPaused`, and `onDispose`. |
-| Stateful domain model | `StatefulModel<S>` | Emits domain state and lets other models subscribe directly. |
+| Stateful domain service | `StatefulService<S>` | Emits domain state and lets other services subscribe directly. |
 | View base | `FoundryView<TViewModel, TState>` | Low-level widget base with `buildWithState(...)`. Most Flutter apps use the higher-level wrapper from `foundry_flutter`. |
 | Root DI scope | `GlobalScope` | Application-wide registrations and singleton lifetime boundary. |
 | Child DI scope | `ChildScope` | Feature or subtree-local registrations with parent fallback and shadowing. |
@@ -95,9 +95,9 @@ If the ViewModel will be bound by `foundry_flutter`, give it an initial state be
 
 ---
 
-## Stateful Models
+## Stateful Services
 
-`StatefulModel<S>` is the domain/runtime sibling to `FoundryViewModel<S>`. Use it for long-lived domain objects that emit state and may be shared by multiple consumers.
+`StatefulService<S>` is the domain/runtime sibling to `FoundryViewModel<S>`. Use it for long-lived domain objects that emit state and may be shared by multiple consumers.
 
 ```dart
 import 'package:foundry_core/foundry_core.dart';
@@ -112,7 +112,7 @@ class CartState {
   }
 }
 
-class CartModel extends StatefulModel<CartState> {
+class CartModel extends StatefulService<CartState> {
   CartModel() {
     emitNewState(const CartState());
   }
@@ -141,7 +141,7 @@ class CheckoutModel {
 }
 ```
 
-`StatefulModel` uses the same `state` + `states` pattern as `FoundryViewModel`, but also exposes `subscribe` / `unsubscribe` for direct model-to-model coordination.
+`StatefulService` uses the same `state` + `states` pattern as `FoundryViewModel`, but also exposes `subscribe` / `unsubscribe` for direct service-to-service coordination.
 
 ---
 
@@ -265,7 +265,7 @@ For larger apps, working directly with `GlobalScope` and generated registration 
 
 ## Relationship To Other Packages
 
-- `foundry_annotations`: marker annotations such as `@FoundryViewModel()` and `@FoundryModel()`.
+- `foundry_annotations`: marker annotations such as `@FoundryViewModel()` and `@FoundryService()`.
 - `foundry_generator`: build-time generation of DI graph wiring, route helpers, and helper mixins.
 - `foundry_flutter`: `FoundryScope`, `FoundryView`, and state-aware widgets for Flutter UI trees.
 - `foundry_navigation_flutter`: typed navigation runtime used by generated `@FoundryView` routes.

@@ -26,7 +26,7 @@ Lift Log is a Foundry MVVM demo application for logging weightlifting workouts. 
 - Every screen is a Foundry `@FoundryView()` with a matching `@FoundryViewModel()` and `@FoundryViewState()` unless the screen is truly static.
 - Persistent app data lives in Hive.
 - Transient screen state lives in Foundry ViewState classes.
-- Shared business logic and persistence coordination live in `@FoundryModel()` classes and repository or service classes.
+- Shared business logic and persistence coordination live in `@FoundryService()` classes and repository or service classes.
 - Only one active workout draft may exist at a time.
 - Theme preference is persisted and applied app-wide.
 
@@ -144,7 +144,7 @@ These records can be direct Hive objects or DTO-like persistence classes. The im
 
 ## Core Models and Services
 
-## Domain models
+## Domain services
 
 These are the logical app models that business logic works with:
 
@@ -233,7 +233,7 @@ Responsibilities:
 
 ### `WorkoutSessionModel`
 
-Foundry `@FoundryModel(stateful: true)` candidate for the active workout session.
+Foundry `@FoundryService(stateful: true)` candidate for the active workout session.
 
 Responsibilities:
 
@@ -244,7 +244,7 @@ Responsibilities:
 
 ### `AppThemeModel`
 
-Foundry `@FoundryModel(stateful: true)` candidate for the app theme state.
+Foundry `@FoundryService(stateful: true)` candidate for the app theme state.
 
 Responsibilities:
 

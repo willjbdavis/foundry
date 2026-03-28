@@ -54,7 +54,7 @@ class ViewModelGenerator extends GeneratorForAnnotation<FoundryViewModel> {
         if (isOtherViewModel) {
           throw InvalidGenerationSourceError(
             '@FoundryViewModel cannot depend on another @FoundryViewModel. '
-            'Move shared logic to a @FoundryModel.',
+            'Move shared logic to a @FoundryService.',
             element: element,
           );
         }

@@ -126,7 +126,7 @@ The child scope is recreated automatically if the parent scope changes (e.g. aft
 
 ## `FoundryBuilder`
 
-Rebuilds its subtree whenever the bound `StateEmitter` (a `ViewModel` or `StatefulModel`) emits a new state. Equivalent to a `StreamBuilder` but without the need to handle `AsyncSnapshot`.
+Rebuilds its subtree whenever the bound `StateEmitter` (a `ViewModel` or `StatefulService`) emits a new state. Equivalent to a `StreamBuilder` but without the need to handle `AsyncSnapshot`.
 
 ```dart
 FoundryBuilder<CartState>(

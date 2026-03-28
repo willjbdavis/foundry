@@ -8,7 +8,7 @@ import '../repositories/workout_repository.dart';
 
 part 'workout_session_model.g.dart';
 
-@foundry.FoundryModelState()
+@foundry.FoundryServiceState()
 class WorkoutSessionState with _$WorkoutSessionStateMixin {
   const WorkoutSessionState({
     this.isLoading = false,
@@ -23,8 +23,8 @@ class WorkoutSessionState with _$WorkoutSessionStateMixin {
   final String? error;
 }
 
-@foundry.FoundryModel(stateful: true)
-class WorkoutSessionModel extends StatefulModel<WorkoutSessionState> {
+@foundry.FoundryService(stateful: true)
+class WorkoutSessionModel extends StatefulService<WorkoutSessionState> {
   WorkoutSessionModel(this._workoutRepository) {
     emitNewState(const WorkoutSessionState(isLoading: true));
   }

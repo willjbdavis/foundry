@@ -152,9 +152,9 @@ void main() {
 
   // ── constructor-first dependency helpers ─────────────────────────────────
 
-  group('inferConstructorModelDependencies', () {
-    test('returns only known model types in constructor order', () {
-      final inferred = inferConstructorModelDependencies(
+  group('inferConstructorServiceDependencies', () {
+    test('returns only known service types in constructor order', () {
+      final inferred = inferConstructorServiceDependencies(
         ['HiveDatabaseService', 'Logger', 'SettingsRepository'],
         {'HiveDatabaseService', 'SettingsRepository'},
       );
@@ -162,8 +162,8 @@ void main() {
       expect(inferred, ['HiveDatabaseService', 'SettingsRepository']);
     });
 
-    test('deduplicates repeated constructor model types', () {
-      final inferred = inferConstructorModelDependencies(
+    test('deduplicates repeated constructor service types', () {
+      final inferred = inferConstructorServiceDependencies(
         ['WorkoutRepository', 'WorkoutRepository', 'String'],
         {'WorkoutRepository'},
       );
@@ -172,11 +172,11 @@ void main() {
     });
   });
 
-  group('mergeModelDependencies', () {
+  group('mergeServiceDependencies', () {
     test(
       'keeps constructor dependencies first and appends explicit extras',
       () {
-        final merged = mergeModelDependencies(
+        final merged = mergeServiceDependencies(
           constructorDependencies: [
             'HiveDatabaseService',
             'SettingsRepository',
