@@ -17,6 +17,16 @@ This repository is a workspace containing the full stack:
 | `foundry_navigation_flutter` | Typed route contracts, runtime result validation, and `FoundryNavigator`/`FoundryNavigation` APIs. |
 | `foundry_generator` | Code generation and architecture enforcement driven by your annotations. |
 
+## Table of Contents
+
+- [Project Docs](#project-docs)
+- [What Foundry Gives You](#what-foundry-gives-you)
+- [Exact New-App Walkthrough](#exact-new-app-walkthrough)
+- [Important Runtime Detail](#important-runtime-detail)
+- [Dependency Declaration](#dependency-declaration)
+- [How The Pieces Fit Together](#how-the-pieces-fit-together)
+- [Where To Read Next](#where-to-read-next)
+
 ---
 
 ## What Foundry Gives You
@@ -220,6 +230,10 @@ class HomeView extends FoundryView<HomeViewModel, HomeState> {
     HomeState? oldState,
     HomeState state,
   ) {
+    final HomeViewModel viewModel = FoundryScope.of(
+      context,
+    ).resolve<HomeViewModel>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Foundry Demo')),
       body: Center(

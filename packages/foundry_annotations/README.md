@@ -4,6 +4,17 @@ Compile-time annotations for the [Foundry MVVM framework](../foundry_core). This
 
 `foundry_annotations` is intentionally small: it does not provide runtime behavior by itself. Instead, it gives you the metadata that powers code generation across `foundry_core`, `foundry_flutter`, and `foundry_navigation_flutter`.
 
+## Table of Contents
+
+- [Concepts](#concepts)
+- [Setup](#setup)
+- [`@FoundryViewState`](#foundryviewstate)
+- [`@FoundryServiceState`](#foundryservicestate)
+- [`@FoundryViewModel`](#foundryviewmodel)
+- [`@FoundryService`](#foundryservice)
+- [`@FoundryView`](#foundryview)
+- [Typical Workflow](#typical-workflow)
+
 ---
 
 ## Concepts

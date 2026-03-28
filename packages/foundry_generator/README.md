@@ -22,6 +22,20 @@ Dependency ordering is constructor-first:
 - registration and singleton initialization are emitted in topological order so
   dependencies run before dependents
 
+## Table of Contents
+
+- [Concepts](#concepts)
+- [Setup](#setup)
+- [Required Discovery File: `lib/app_module.dart`](#required-discovery-file-libapp_moduledart)
+- [`@FoundryViewState`](#foundryviewstate)
+- [`@FoundryServiceState`](#foundryservicestate)
+- [`@FoundryViewModel`](#foundryviewmodel)
+- [`@FoundryService`](#foundryservice)
+- [`@FoundryView`](#foundryview)
+- [Aggregated Outputs](#aggregated-outputs)
+- [Testing Support](#testing-support)
+- [Architecture Enforcement Summary](#architecture-enforcement-summary)
+
 ---
 
 ## Concepts
@@ -309,7 +323,7 @@ Generated output includes:
 
 ```dart
 extension HomeViewGeneratedExt on HomeView {
-  static const String? generatedRoute = '/home';
+  static const String generatedRoute = '/home';
   static const String? generatedDeepLink = null;
 }
 

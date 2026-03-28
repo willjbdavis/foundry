@@ -27,6 +27,7 @@ This runtime now enforces a typed result contract at both compile time and runti
 - [When To Use What](#when-to-use-what)
 - [`FoundryNavigation` — Explicit-Target Navigation](#foundrynavigation--explicit-target-navigation)
 - [Result Semantics Reference](#result-semantics-reference)
+- [Using Navigation Without ViewModel, Service, Or DI](#using-navigation-without-viewmodel-service-or-di)
 
 ---
 

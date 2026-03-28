@@ -4,6 +4,16 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 
 `foundry_core` is the package that defines how Foundry behaves at runtime. `foundry_annotations` describes your architecture at compile time, `foundry_generator` removes boilerplate, and `foundry_flutter` adds the higher-level Flutter widget integration most apps use.
 
+## Table of Contents
+
+- [Concepts](#concepts)
+- [Setup](#setup)
+- [State and ViewModels](#state-and-viewmodels)
+- [Stateful Services](#stateful-services)
+- [Scoped Dependency Injection](#scoped-dependency-injection)
+- [`Container`](#container)
+- [Relationship To Other Packages](#relationship-to-other-packages)
+
 ---
 
 ## Concepts
