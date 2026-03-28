@@ -11,7 +11,7 @@ Compile-time annotations for the [Foundry MVVM framework](../foundry_core). This
 | Annotation | Use it on | Purpose |
 |---|---|---|
 | `@FoundryViewState()` | Immutable UI state classes | Generates `copyWith`, value equality, and `toString` helpers. |
-| `@FoundryServiceState()` | Immutable model/domain state classes | Same as `@FoundryViewState`, with optional persistence metadata. |
+| `@FoundryServiceState()` | Immutable service/domain state classes | Same as `@FoundryViewState`, with optional persistence metadata. |
 | `@FoundryViewModel()` | Classes extending `FoundryViewModel<T>` | Enables validation and generates helper methods like `safeAsync`. |
 | `@FoundryService()` | Stateless services or `StatefulService<T>` classes | Marks DI-managed domain services and validates dependencies. |
 | `@FoundryView()` | Flutter view widgets | Generates typed route helpers and deep-link wiring metadata. |
@@ -126,11 +126,11 @@ Annotate services, repositories, and domain services that should participate in 
 import 'package:foundry_annotations/foundry_annotations.dart';
 import 'package:foundry_core/foundry_core.dart';
 
-part 'cart_model.g.dart';
+part 'cart_service.g.dart';
 
 @FoundryService(stateful: true)
-class CartModel extends StatefulService<CartState> {
-  CartModel() {
+class CartService extends StatefulService<CartState> {
+  CartService() {
     emitNewState(const CartState());
   }
 
@@ -140,7 +140,7 @@ class CartModel extends StatefulService<CartState> {
 }
 ```
 
-Use `dependsOn: [...]` when a model has explicit dependencies on other models and you want the generator to validate those relationships.
+Use `dependsOn: [...]` when a service has explicit dependencies on other services and you want the generator to validate those relationships.
 
 ---
 
@@ -177,7 +177,7 @@ When the annotated view is used with `foundry_flutter`, make sure its ViewModel 
 
 In a Foundry app, these packages work together in sequence:
 
-1. Add annotations from `foundry_annotations` to your state, model, ViewModel, and view classes.
+1. Add annotations from `foundry_annotations` to your state, service, ViewModel, and view classes.
 2. Run `foundry_generator` with `build_runner`.
 3. Use the generated helpers and registration graph with `foundry_core`, `foundry_flutter`, and `foundry_navigation_flutter`.
 

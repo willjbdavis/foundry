@@ -541,3 +541,100 @@ final bool? done = await FoundryNavigation.instance.pushInLast(
 
 When in doubt, model cancel explicitly with nullable result contracts and
 handle `null` at the call site.
+
+---
+
+## Using Navigation Without ViewModel, Service, Or DI
+
+You can use this package as a navigation-only layer in a plain Flutter app.
+You do not need to adopt `FoundryViewModel`, `@FoundryService`, scopes, or
+generated DI registration.
+
+### Option A: Manual routes only (no annotations)
+
+Define routes directly with `RouteConfig<T>` and push them through
+`FoundryNavigator`.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';
+
+class SettingsRoute extends RouteConfig<void> {
+  const SettingsRoute();
+
+  @override
+  String get name => '/settings';
+
+  @override
+  Route<void> build(BuildContext context) {
+    return MaterialPageRoute<void>(
+      builder: (_) => const SettingsScreen(),
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Settings')));
+  }
+}
+```
+
+### Option B: Use `@FoundryView` generation only
+
+If you want generated route helpers but still do not want the rest of Foundry,
+use only:
+
+- `foundry_annotations` (`@FoundryView`)
+- `foundry_generator` + `build_runner` (for generated route helpers)
+- `foundry_navigation_flutter` (runtime)
+
+In this mode, simply do not use `@FoundryViewModel`, `@FoundryService`,
+`@FoundryServiceState`, or generated DI wiring.
+
+Example view:
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:foundry_annotations/foundry_annotations.dart';
+
+part 'home_view.g.dart';
+
+@FoundryView(route: '/home')
+class HomeView extends StatelessWidget {
+  const HomeView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
+  }
+}
+```
+
+Then run:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### Minimal runtime setup
+
+Configure a navigator adapter once, then push routes from anywhere.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
+
+void main() {
+  FoundryNavigator.configure(
+    FlutterNavigatorAdapter.fromKey(navigatorKey),
+  );
+
+  runApp(MaterialApp(navigatorKey: navigatorKey, home: const Placeholder()));
+}
+```

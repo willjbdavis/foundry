@@ -6,5 +6,5 @@
 - Added @FoundryViewState annotation for immutable view state
 - Added @FoundryServiceState annotation for service state classes
 - Added @FoundryViewModel annotation for ViewModel classes  
-- Added @FoundryService annotation for injectable models and services
+- Added @FoundryService annotation for injectable services
 - Added @FoundryView annotation for Flutter widgets that bind to ViewModels

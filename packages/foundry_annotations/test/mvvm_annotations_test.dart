@@ -15,19 +15,19 @@ void main() {
       expect(viewState.name, 'HomeState');
     });
 
-    test('ModelState annotation defaults are correct', () {
-      const FoundryServiceState modelState = FoundryServiceState();
-      expect(modelState.persistent, isFalse);
-      expect(modelState.name, isNull);
+    test('ServiceState annotation defaults are correct', () {
+      const FoundryServiceState serviceState = FoundryServiceState();
+      expect(serviceState.persistent, isFalse);
+      expect(serviceState.name, isNull);
     });
 
-    test('ModelState supports persistent and name parameters', () {
-      const FoundryServiceState modelState = FoundryServiceState(
+    test('ServiceState supports persistent and name parameters', () {
+      const FoundryServiceState serviceState = FoundryServiceState(
         persistent: true,
         name: 'SessionState',
       );
-      expect(modelState.persistent, isTrue);
-      expect(modelState.name, 'SessionState');
+      expect(serviceState.persistent, isTrue);
+      expect(serviceState.name, 'SessionState');
     });
 
     test('ViewModel annotation defaults are correct', () {
@@ -45,26 +45,26 @@ void main() {
       expect(viewModel.lifetime, 'singleton');
     });
 
-    test('Model annotation defaults are correct', () {
-      const FoundryService model = FoundryService();
-      expect(model.stateful, isFalse);
-      expect(model.dependsOn, isNull);
-      expect(model.name, isNull);
-      expect(model.lifetime, 'singleton');
+    test('Service annotation defaults are correct', () {
+      const FoundryService service = FoundryService();
+      expect(service.stateful, isFalse);
+      expect(service.dependsOn, isNull);
+      expect(service.name, isNull);
+      expect(service.lifetime, 'singleton');
     });
 
-    test('Model supports all parameters', () {
-      const FoundryService model = FoundryService(
+    test('Service supports all parameters', () {
+      const FoundryService service = FoundryService(
         stateful: true,
         dependsOn: <Type>[String, int],
         name: 'NotificationService',
         lifetime: 'transient',
       );
 
-      expect(model.stateful, isTrue);
-      expect(model.dependsOn, <Type>[String, int]);
-      expect(model.name, 'NotificationService');
-      expect(model.lifetime, 'transient');
+      expect(service.stateful, isTrue);
+      expect(service.dependsOn, <Type>[String, int]);
+      expect(service.name, 'NotificationService');
+      expect(service.lifetime, 'transient');
     });
 
     test('View annotation defaults are correct', () {

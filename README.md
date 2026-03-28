@@ -2,6 +2,11 @@
 
 Foundry is a compile-time MVVM stack for Flutter. It combines immutable state, architecture validation, generated dependency wiring, Flutter view binding, and typed navigation into a small set of packages that work together.
 
+## Project Docs
+
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- License: [LICENSE](LICENSE)
+
 This repository is a workspace containing the full stack:
 
 | Package | Role |
