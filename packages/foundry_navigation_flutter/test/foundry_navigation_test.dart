@@ -52,6 +52,10 @@ class _TestRoute extends RouteConfig<void> {
   Route<void> build(BuildContext context) => PageRouteBuilder<void>(
     pageBuilder: (_, __, ___) => const SizedBox.shrink(),
   );
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) =>
+      throw UnsupportedError('_TestRoute does not support deep-link entry.');
 }
 
 // ---------------------------------------------------------------------------

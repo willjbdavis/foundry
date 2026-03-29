@@ -21,6 +21,12 @@ class _TestRouteConfig extends RouteConfig<void> {
       reverseTransitionDuration: Duration.zero,
     );
   }
+
+  @override
+  Route<void> buildDeepLink(final RouteSettings settings) =>
+      throw UnsupportedError(
+        '_TestRouteConfig does not support deep-link entry.',
+      );
 }
 
 class _IntResultRouteConfig extends RouteConfig<int> {
@@ -41,6 +47,12 @@ class _IntResultRouteConfig extends RouteConfig<int> {
       reverseTransitionDuration: Duration.zero,
     );
   }
+
+  @override
+  Route<int> buildDeepLink(final RouteSettings settings) =>
+      throw UnsupportedError(
+        '_IntResultRouteConfig does not support deep-link entry.',
+      );
 }
 
 class _NullableIntResultRouteConfig extends RouteConfig<int?> {
@@ -61,6 +73,12 @@ class _NullableIntResultRouteConfig extends RouteConfig<int?> {
       reverseTransitionDuration: Duration.zero,
     );
   }
+
+  @override
+  Route<int?> buildDeepLink(final RouteSettings settings) =>
+      throw UnsupportedError(
+        '_NullableIntResultRouteConfig does not support deep-link entry.',
+      );
 }
 
 class _FakeAdapter implements NavigatorAdapter {
