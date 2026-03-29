@@ -26,6 +26,12 @@ class ExercisesDatabaseViewRoute extends RouteConfig<void> {
         builder: (_) => const ExercisesDatabaseView());
   }
 
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => const ExercisesDatabaseView());
+  }
+
   /// Returns a [ExercisesDatabaseView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static ExercisesDatabaseViewRoute? matchDeepLink(Uri uri) {

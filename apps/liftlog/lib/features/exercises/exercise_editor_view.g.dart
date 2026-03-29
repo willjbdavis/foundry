@@ -28,6 +28,12 @@ class ExerciseEditorViewRoute extends RouteConfig<bool?> {
         builder: (_) => ExerciseEditorView(args: args));
   }
 
+  @override
+  Route<bool?> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<bool?>(
+        settings: settings, builder: (_) => ExerciseEditorView(args: args));
+  }
+
   /// Returns a [ExerciseEditorView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static ExerciseEditorViewRoute? matchDeepLink(Uri uri) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foundry_flutter/foundry_flutter.dart';
 
-import 'core/navigation/app_deep_link_resolver.dart';
+import 'app_deep_links.g.dart';
 import 'core/theme/app_theme_data.dart';
 import 'core/theme/app_theme_model.dart';
 import 'features/shell/app_shell_view.dart';
@@ -30,7 +30,7 @@ class LiftLogApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
             initialRoute: '/',
-            onGenerateRoute: AppDeepLinkResolver.resolve,
+            onGenerateRoute: GeneratedDeepLinkResolver.resolve,
             onUnknownRoute: (RouteSettings settings) {
               return MaterialPageRoute<void>(
                 settings: settings,

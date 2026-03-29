@@ -5,6 +5,7 @@ final class Foundry {
   Foundry._();
 
   static FoundryLogger? _logger;
+  static String? _deepLinkFallbackPath;
 
   /// Sets the active logger instance used by all Foundry packages.
   static void configureLogger(FoundryLogger logger) {
@@ -27,6 +28,21 @@ final class Foundry {
   static void log(LogEvent event) {
     _logger?.log(event);
   }
+
+  /// Configures a fallback deep-link path used by generated resolvers on miss.
+  ///
+  /// Example: `/home`.
+  static void configureDeepLinkFallbackPath(String path) {
+    _deepLinkFallbackPath = path;
+  }
+
+  /// Clears the configured deep-link fallback path.
+  static void clearDeepLinkFallbackPath() {
+    _deepLinkFallbackPath = null;
+  }
+
+  /// Returns the configured deep-link fallback path if provided.
+  static String? get deepLinkFallbackPath => _deepLinkFallbackPath;
 }
 
 class _FunctionLogger implements FoundryLogger {

@@ -50,6 +50,14 @@ abstract class RouteConfig<T> {
     isNullable: null is T,
   );
 
-  /// Builds the concrete Flutter [Route].
+  /// Builds the concrete Flutter [Route] for explicit navigation.
   Route<T> build(BuildContext context);
+
+  /// Builds the concrete Flutter [Route] for deep-link resolution.
+  ///
+  /// Called by the generated deep-link resolver instead of [build] because
+  /// no [BuildContext] is available during [MaterialApp.onGenerateRoute].
+  /// Implementations must forward [settings] to the returned route so that
+  /// [RouteSettings.name] is preserved through the navigation stack.
+  Route<T> buildDeepLink(RouteSettings settings);
 }

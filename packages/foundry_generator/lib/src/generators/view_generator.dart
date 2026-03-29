@@ -101,6 +101,21 @@ class ViewGenerator extends GeneratorForAnnotation<FoundryView> {
       );
     }
     buffer.writeln('  }');
+    buffer.writeln('');
+    buffer.writeln('  @override');
+    buffer.writeln(
+      '  Route<$resultType> buildDeepLink(RouteSettings settings) {',
+    );
+    if (hasArgs) {
+      buffer.writeln(
+        '    return MaterialPageRoute<$resultType>(settings: settings, builder: (_) => $className(args: args));',
+      );
+    } else {
+      buffer.writeln(
+        '    return MaterialPageRoute<$resultType>(settings: settings, builder: (_) => const $className());',
+      );
+    }
+    buffer.writeln('  }');
 
     // matchDeepLink static method.
     if (deepLinkValue != null) {

@@ -2,7 +2,7 @@
 
 Flutter navigation runtime for the Foundry MVVM framework. This package provides the typed route contracts and adapter layer that generated `@FoundryView` navigation helpers target.
 
-If `foundry_generator` gives you `HomeViewRoute` and `context.pushHomeView()`, `foundry_navigation_flutter` is the package that makes those generated helpers work at runtime.
+If `foundry_generator` gives you `HomeViewRoute` and `GeneratedDeepLinkResolver`, `foundry_navigation_flutter` is the package that makes those generated contracts execute at runtime.
 
 This runtime now enforces a typed result contract at both compile time and runtime:
 
@@ -20,10 +20,9 @@ This runtime now enforces a typed result contract at both compile time and runti
 - [Setup](#setup)
 - [Configure Navigation Once](#configure-navigation-once)
 - [Define A Typed Route](#define-a-typed-route)
-- [Context-Based Navigation](#context-based-navigation)
 - [`RouteArgs`](#routeargs)
 - [Working With Generated `@FoundryView` Routes](#working-with-generated-foundryview-routes)
-- [Deep-Link Args Resolution](#deep-link-args-resolution)
+- [Deep-Link Resolution](#deep-link-resolution)
 - [When To Use What](#when-to-use-what)
 - [`FoundryNavigation` — Explicit-Target Navigation](#foundrynavigation--explicit-target-navigation)
 - [Result Semantics Reference](#result-semantics-reference)
@@ -39,7 +38,7 @@ This runtime now enforces a typed result contract at both compile time and runti
 | Flutter adapter | `FlutterNavigatorAdapter` | Bridges the abstraction to Flutter's `Navigator`. |
 | Typed route base | `RouteConfig<T>` | Describes route construction and the result contract (`void`, nullable, or non-nullable value). |
 | Typed args marker | `RouteArgs` | Base class for strongly typed route argument objects. |
-| Static entry point | `FoundryNavigator` | Global or context-based API used by generated and hand-written routes. |
+| Static entry point | `FoundryNavigator` | Global API used by generated and hand-written routes. |
 | Explicit-target service | `FoundryNavigation` | Instance-based navigation with five explicit target types. |
 
 ---
@@ -148,6 +147,17 @@ class DetailRoute extends RouteConfig<void> {
       ),
     );
   }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text('Detail')),
+        body: Center(child: Text('Detail: $id')),
+      ),
+    );
+  }
 }
 
 Future<void> openDetail() async {
@@ -169,6 +179,14 @@ class ConfirmDeleteRoute extends RouteConfig<bool?> {
       builder: (_) => const ConfirmDeleteDialog(),
     );
   }
+
+  @override
+  Route<bool?> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<bool?>(
+      settings: settings,
+      builder: (_) => const ConfirmDeleteDialog(),
+    );
+  }
 }
 
 Future<void> maybeDelete() async {
@@ -178,23 +196,6 @@ Future<void> maybeDelete() async {
   }
 }
 ```
-
----
-
-## Context-Based Navigation
-
-If you do not want to configure a global adapter, `FoundryNavigator` can resolve a `FlutterNavigatorAdapter` from a `BuildContext` on a per-call basis.
-
-```dart
-await FoundryNavigator.push(
-  const DetailRoute(42),
-  context: context,
-);
-
-FoundryNavigator.pop('saved', context);
-```
-
-This is useful in smaller apps, tests, or places where global configuration is undesirable.
 
 ---
 
@@ -235,8 +236,8 @@ class HomeView extends FoundryView<HomeViewModel, HomeState> {
 With generation enabled, Foundry can emit code such as:
 
 - `HomeViewRoute extends RouteConfig<void>`
-- `context.pushHomeView()`
-- optional deep-link matching helpers
+- `HomeViewRoute.matchDeepLink(Uri)`
+- app-level `GeneratedDeepLinkResolver` (in `lib/app_deep_links.g.dart`)
 
 If you declare a result type in `@FoundryView`, generated routes and helpers become
 typed automatically:
@@ -256,16 +257,121 @@ class PickUserView extends FoundryView<PickUserViewModel, PickUserState> {
 
 // generated:
 // class PickUserViewRoute extends RouteConfig<User?>
-// Future<User?> BuildContext.pushPickUserView(PickUserArgs args)
 ```
 
 That keeps your view declarations close to navigation metadata while leaving the runtime navigation implementation here.
 
 ---
 
-## Deep-Link Args Resolution
+## Deep-Link Resolution
 
-Generated deep-link helpers follow a deterministic match-and-build flow.
+Deep-link handling is active only after you wire the generated resolver into your app router.
+
+### Required app wiring
+
+1. Generate `lib/app_deep_links.g.dart` by running build_runner.
+2. Use `GeneratedDeepLinkResolver.resolve` as the router function in `MaterialApp.onGenerateRoute`.
+3. Keep an `onUnknownRoute` handler for unresolved routes (recommended).
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:foundry_core/foundry_core.dart';
+import 'app_deep_links.g.dart';
+
+void main() {
+  Foundry.configureDeepLinkFallbackPath('/home'); // optional
+
+  runApp(
+    MaterialApp(
+      onGenerateRoute: GeneratedDeepLinkResolver.resolve,
+      onUnknownRoute: (settings) => MaterialPageRoute<void>(
+        builder: (_) => const NotFoundView(),
+      ),
+    ),
+  );
+}
+```
+
+Without this `onGenerateRoute` assignment, deep-link metadata is generated but never executed.
+
+### End-to-end resolver flow
+
+```mermaid
+flowchart TD
+  A[Incoming RouteSettings.name] --> B[GeneratedDeepLinkResolver.resolve]
+  B --> C[Parse to Uri]
+  C --> D[Tree traversal match]
+  D -->|match| E[Run matched Route.matchDeepLink(uri)]
+  E -->|route config| F[Build MaterialPageRoute]
+  F --> G[Navigator push result]
+  D -->|no match| H{Fallback configured?}
+  H -->|yes| I[Retry once with fallback path]
+  I --> D
+  H -->|no| J[return null]
+  J --> K[onUnknownRoute or Flutter fallback]
+```
+
+### How the tree works
+
+- The generator inserts each deep-link pattern into a segment tree.
+- Each node can have:
+  - literal children (for static segments like `exercises`)
+  - one variable child (for dynamic segments like `:exerciseId`)
+  - an optional terminal matcher index
+- Match order per segment is deterministic:
+  - literal child first
+  - variable child second
+- A URI matches only when traversal consumes all path segments and lands on a terminal node.
+
+This structure avoids linear scanning of all routes and makes behavior stable as route count grows.
+
+### Conflict detection
+
+During code generation, deep-link patterns are validated for canonical collisions. Ambiguous patterns with the same segment shape (for example, two routes that both normalize to `/users/:param`) fail generation with a hard error.
+
+### Fallback policy
+
+- Fallback is optional.
+- Configure once using `Foundry.configureDeepLinkFallbackPath('/some/path')`.
+- On miss, resolver logs an error and tries fallback once.
+- If fallback is absent, empty, same-path, or also misses, resolver returns `null`.
+- Returning `null` allows your `onUnknownRoute` policy to handle the request.
+
+### Tree diagnostics
+
+Use `GeneratedDeepLinkResolver.debugDescribeTree()` to print the generated matcher tree while debugging route shape issues.
+
+### `buildDeepLink` contract
+
+The resolver calls `buildDeepLink(RouteSettings)` instead of `build(BuildContext)` because no `BuildContext` is available during `MaterialApp.onGenerateRoute`.
+
+Every `RouteConfig` subclass must implement `buildDeepLink`. For `@FoundryView` routes, the generator emits this implementation automatically. For manually written routes, implement it by forwarding `settings` to `MaterialPageRoute`:
+
+```dart
+@override
+Route<void> buildDeepLink(RouteSettings settings) {
+  return MaterialPageRoute<void>(
+    settings: settings,
+    builder: (_) => DetailScreen(id: id),
+  );
+}
+```
+
+The `settings` parameter must be forwarded so that `RouteSettings.name` is preserved through the navigation stack.
+
+If a route is never entered via deep link, provide a throwing stub:
+
+```dart
+@override
+Route<void> buildDeepLink(RouteSettings settings) =>
+    throw UnsupportedError('${runtimeType} does not support deep-link entry.');
+```
+
+The resolver wraps every `buildDeepLink` call in a `try/catch` and logs errors, so a throw results in a graceful miss rather than a crash.
+
+### Per-view args resolution
+
+Per-view generated deep-link helpers still follow a deterministic match-and-build flow.
 
 ### Naming alignment example
 
@@ -362,7 +468,6 @@ Practical implication: deep-link matching is strict and safe-by-default. Invalid
 | Hook Foundry navigation into a Flutter app | `FlutterNavigatorAdapter` |
 | Hand-write a typed route | `RouteConfig<T>` |
 | Trigger navigation from anywhere after startup configuration | `FoundryNavigator.configure(...)` + `FoundryNavigator.push(...)` |
-| Trigger navigation locally without global setup | `FoundryNavigator.push(..., context: context)` |
 
 For deep-link generation and route helper generation, see [`foundry_generator`](../foundry_generator). For view widgets and scope wiring, see [`foundry_flutter`](../foundry_flutter).
 
@@ -569,6 +674,14 @@ class SettingsRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
+      builder: (_) => const SettingsScreen(),
+    );
+  }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+      settings: settings,
       builder: (_) => const SettingsScreen(),
     );
   }

@@ -28,6 +28,12 @@ class WorkoutDetailViewRoute extends RouteConfig<void> {
         builder: (_) => WorkoutDetailView(args: args));
   }
 
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => WorkoutDetailView(args: args));
+  }
+
   /// Returns a [WorkoutDetailView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static WorkoutDetailViewRoute? matchDeepLink(Uri uri) {

@@ -27,6 +27,12 @@ class ExercisePickerViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(
         builder: (_) => ExercisePickerView(args: args));
   }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => ExercisePickerView(args: args));
+  }
 }
 
 /// Navigation helpers for [ExercisePickerView].

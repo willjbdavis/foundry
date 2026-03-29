@@ -25,6 +25,12 @@ class AppShellViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(builder: (_) => const AppShellView());
   }
 
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => const AppShellView());
+  }
+
   /// Returns a [AppShellView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static AppShellViewRoute? matchDeepLink(Uri uri) {

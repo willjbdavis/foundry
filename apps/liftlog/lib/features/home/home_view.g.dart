@@ -25,6 +25,12 @@ class HomeViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(builder: (_) => const HomeView());
   }
 
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => const HomeView());
+  }
+
   /// Returns a [HomeView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static HomeViewRoute? matchDeepLink(Uri uri) {

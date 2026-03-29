@@ -26,6 +26,12 @@ class ExerciseLogViewRoute extends RouteConfig<void> {
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(builder: (_) => ExerciseLogView(args: args));
   }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => ExerciseLogView(args: args));
+  }
 }
 
 /// Navigation helpers for [ExerciseLogView].

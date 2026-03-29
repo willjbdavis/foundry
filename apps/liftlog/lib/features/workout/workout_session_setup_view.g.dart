@@ -27,6 +27,13 @@ class WorkoutSessionSetupViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(
         builder: (_) => WorkoutSessionSetupView(args: args));
   }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => WorkoutSessionSetupView(args: args));
+  }
 }
 
 /// Navigation helpers for [WorkoutSessionSetupView].

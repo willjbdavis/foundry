@@ -25,6 +25,12 @@ class WorkoutHistoryViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(builder: (_) => const WorkoutHistoryView());
   }
 
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => const WorkoutHistoryView());
+  }
+
   /// Returns a [WorkoutHistoryView Route] if [uri] matches the deep link pattern,
   /// otherwise returns null.
   static WorkoutHistoryViewRoute? matchDeepLink(Uri uri) {

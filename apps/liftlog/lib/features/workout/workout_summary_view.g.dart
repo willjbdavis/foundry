@@ -27,6 +27,12 @@ class WorkoutSummaryViewRoute extends RouteConfig<void> {
     return MaterialPageRoute<void>(
         builder: (_) => WorkoutSummaryView(args: args));
   }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+        settings: settings, builder: (_) => WorkoutSummaryView(args: args));
+  }
 }
 
 /// Navigation helpers for [WorkoutSummaryView].
