@@ -1,5 +1,5 @@
 /// Severity levels for Foundry runtime logs.
-enum LogLevel { debug, info, warning, error }
+enum LogLevel { trace, debug, info, warning, error }
 
 /// Structured log payload emitted by Foundry runtime packages.
 class LogEvent {

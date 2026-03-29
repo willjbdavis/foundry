@@ -30,7 +30,7 @@ class GlobalScope implements Scope {
         LogEvent(
           level: LogLevel.error,
           tag: 'di.global_scope',
-          message: 'Resolve failed: missing registration for type $T.',
+          message: 'Resolve failed: $T is not registered in GlobalScope.',
         ),
       );
       throw StateError(
@@ -39,16 +39,85 @@ class GlobalScope implements Scope {
       );
     }
 
-    Foundry.log(
-      LogEvent(
-        level: LogLevel.debug,
-        tag: 'di.global_scope',
-        message: 'Resolving type $T from GlobalScope.',
-      ),
-    );
+    switch (registration._lifetime) {
+      case Lifetime.singleton:
+        final bool isNew = !registration._singletonCreated;
+        final T result =
+            registration.resolve(ownerScope: this, requestScope: targetScope)
+                as T;
+        Foundry.log(
+          LogEvent(
+            level: LogLevel.debug,
+            tag: 'di.global_scope',
+            message: isNew
+                ? 'Resolved $T from GlobalScope '
+                      '(singleton — instance created).'
+                : 'Resolved $T from GlobalScope '
+                      '(singleton — returning cached instance).',
+          ),
+        );
+        return result;
 
-    return registration.resolve(ownerScope: this, requestScope: targetScope)
-        as T;
+      case Lifetime.scoped:
+        final bool isNew = registration._scopedInstances[targetScope] == null;
+        final T result =
+            registration.resolve(ownerScope: this, requestScope: targetScope)
+                as T;
+        if (isNew && targetScope is ChildScope) {
+          // Cache the new instance back into the requesting child scope so
+          // subsequent resolves from that scope are served locally without
+          // re-delegating here.
+          targetScope.cacheResolvedScoped(key, result as Object);
+          Foundry.log(
+            LogEvent(
+              level: LogLevel.debug,
+              tag: 'di.global_scope',
+              message:
+                  'Resolved $T from GlobalScope (scoped — new instance '
+                  'created and cached in requesting child scope).',
+            ),
+          );
+        } else if (isNew) {
+          // requestScope is GlobalScope itself (e.g. during initializeGeneratedGraph)
+          Foundry.log(
+            LogEvent(
+              level: LogLevel.debug,
+              tag: 'di.global_scope',
+              message:
+                  'Resolved $T from GlobalScope '
+                  '(scoped — new instance created for global request scope).',
+            ),
+          );
+        } else {
+          // Should not happen under normal usage after the child-scope cache
+          // is populated, but handles edge cases (non-ChildScope requestScope).
+          Foundry.log(
+            LogEvent(
+              level: LogLevel.debug,
+              tag: 'di.global_scope',
+              message:
+                  'Resolved $T from GlobalScope '
+                  '(scoped — Expando cache hit).',
+            ),
+          );
+        }
+        return result;
+
+      case Lifetime.transient:
+        final T result =
+            registration.resolve(ownerScope: this, requestScope: targetScope)
+                as T;
+        Foundry.log(
+          LogEvent(
+            level: LogLevel.debug,
+            tag: 'di.global_scope',
+            message:
+                'Resolved $T from GlobalScope '
+                '(transient — new instance created for each resolution).',
+          ),
+        );
+        return result;
+    }
   }
 
   @override

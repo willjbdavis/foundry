@@ -18,6 +18,14 @@ class ChildScope implements Scope {
 
   /// Local registrations for this scope.
   final Map<String, _Registration> _registrations = <String, _Registration>{};
+
+  /// Scoped instances cached back from parent-scope resolutions.
+  ///
+  /// When a [Lifetime.scoped] type is first resolved via a parent scope on
+  /// behalf of this scope, the result is stored here so subsequent resolves
+  /// are served locally without re-delegating to the parent.
+  final Map<String, Object> _scopedCache = <String, Object>{};
+
   final List<ChildScope> _children = <ChildScope>[];
   bool _disposed = false;
 
@@ -26,48 +34,74 @@ class ChildScope implements Scope {
     _throwIfDisposed();
 
     final Scope targetScope = requestScope ?? this;
-
-    // First check local registrations
     final String key = buildScopeKey<T>(named);
+
+    // 1. Explicit local registrations (test overrides, view-local shadowing).
     final _Registration? registration = _registrations[key];
     if (registration != null) {
       Foundry.log(
         LogEvent(
           level: LogLevel.debug,
           tag: 'di.child_scope',
-          message: 'Resolving local type $T from ChildScope.',
+          message:
+              'Resolved $T from child scope '
+              '(local registration, ${registration._lifetime.name}).',
         ),
       );
-
       return registration.resolve(ownerScope: this, requestScope: targetScope)
           as T;
     }
 
-    // Then fallback to parent scope if exists
+    // 2. Scoped-instance cache — populated by the parent scope on first
+    //    resolution, so repeated resolves are served locally.
+    final Object? cached = _scopedCache[key];
+    if (cached != null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'di.child_scope',
+          message:
+              'Resolved $T from child scope '
+              '(scoped — scope-local cache hit, no parent delegation needed).',
+        ),
+      );
+      return cached as T;
+    }
+
+    // 3. Delegate to parent scope (first resolution, or transient types).
     if (parent != null) {
       Foundry.log(
         LogEvent(
           level: LogLevel.debug,
           tag: 'di.child_scope',
-          message: 'Falling back to parent scope for type $T.',
+          message: 'No local entry for $T — delegating to parent scope.',
         ),
       );
-
       return parent!.resolve<T>(named: named, requestScope: targetScope);
     }
 
-    // No registration found
+    // 4. Not found anywhere in the hierarchy.
     Foundry.log(
       LogEvent(
         level: LogLevel.error,
         tag: 'di.child_scope',
-        message: 'Resolve failed: missing registration for type $T.',
+        message: 'Resolve failed: no registration for $T in scope hierarchy.',
       ),
     );
     throw StateError(
       'No registration found in scope hierarchy for type $T'
       '${named != null ? ' with name $named' : ''}.',
     );
+  }
+
+  /// Caches a pre-resolved scoped instance so future resolves from this scope
+  /// are served locally without re-delegating to the parent scope.
+  ///
+  /// Called by a parent scope after resolving a [Lifetime.scoped] type on
+  /// behalf of this scope for the first time.
+  void cacheResolvedScoped(final String key, final Object instance) {
+    _throwIfDisposed();
+    _scopedCache.putIfAbsent(key, () => instance);
   }
 
   @override
@@ -83,7 +117,7 @@ class ChildScope implements Scope {
       LogEvent(
         level: LogLevel.info,
         tag: 'di.child_scope',
-        message: 'Registered local type $T with lifetime $lifetime.',
+        message: 'Registered $T in child scope (lifetime: ${lifetime.name}).',
       ),
     );
   }
@@ -123,6 +157,7 @@ class ChildScope implements Scope {
     }
     _children.clear();
     _registrations.clear();
+    _scopedCache.clear();
     _disposed = true;
     onDispose?.call(this);
   }

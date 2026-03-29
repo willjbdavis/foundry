@@ -94,6 +94,10 @@ void main() {
   });
 
   group('ChildScope', () {
+    tearDown(() {
+      Foundry.clearLogger();
+    });
+
     test('falls back to parent registration', () {
       final GlobalScope root = GlobalScope.create();
       root.register<int>((_) => 7);
@@ -124,6 +128,63 @@ void main() {
       expect(child.resolve<String>(named: 'api'), 'child');
     });
 
+    test('caches parent scoped instance into child after first resolve', () {
+      final _TestLogger logger = _TestLogger();
+      Foundry.configureLogger(logger);
+
+      final GlobalScope root = GlobalScope.create();
+      int createCount = 0;
+
+      root.register<_Box>((_) {
+        createCount += 1;
+        return _Box(createCount);
+      }, lifetime: Lifetime.scoped);
+
+      final Scope child = root.createChild();
+      final _Box first = child.resolve<_Box>();
+      final _Box second = child.resolve<_Box>();
+
+      expect(first, same(second));
+      expect(createCount, 1);
+
+      final List<String> messages = logger.events
+          .map((event) => event.message)
+          .toList();
+
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('No local entry for _Box') &&
+                  message.contains('delegating to parent scope'),
+            )
+            .length,
+        1,
+      );
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('Resolved _Box from GlobalScope') &&
+                  message.contains(
+                    'new instance created and cached in requesting child scope',
+                  ),
+            )
+            .length,
+        1,
+      );
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('Resolved _Box from child scope') &&
+                  message.contains('scope-local cache hit'),
+            )
+            .length,
+        1,
+      );
+    });
+
     test(
       'scoped registration in parent creates separate instances per child',
       () {
@@ -148,6 +209,55 @@ void main() {
       },
     );
 
+    test('named scoped registrations are cached back into child scope', () {
+      final _TestLogger logger = _TestLogger();
+      Foundry.configureLogger(logger);
+
+      final GlobalScope root = GlobalScope.create();
+      int createCount = 0;
+
+      root.register<_Box>(
+        (_) {
+          createCount += 1;
+          return _Box(createCount);
+        },
+        named: 'api',
+        lifetime: Lifetime.scoped,
+      );
+
+      final Scope child = root.createChild();
+      final _Box first = child.resolve<_Box>(named: 'api');
+      final _Box second = child.resolve<_Box>(named: 'api');
+
+      expect(first, same(second));
+      expect(createCount, 1);
+
+      final List<String> messages = logger.events
+          .map((event) => event.message)
+          .toList();
+
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('No local entry for _Box') &&
+                  message.contains('delegating to parent scope'),
+            )
+            .length,
+        1,
+      );
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('Resolved _Box from child scope') &&
+                  message.contains('scope-local cache hit'),
+            )
+            .length,
+        1,
+      );
+    });
+
     test('singleton registration in parent is shared across children', () {
       final GlobalScope root = GlobalScope.create();
 
@@ -162,6 +272,51 @@ void main() {
 
       expect(rootInstance, same(a));
       expect(a, same(b));
+    });
+
+    test('singleton parent registrations are not attached to child cache', () {
+      final _TestLogger logger = _TestLogger();
+      Foundry.configureLogger(logger);
+
+      final GlobalScope root = GlobalScope.create();
+      int createCount = 0;
+
+      root.register<_Box>((_) {
+        createCount += 1;
+        return _Box(7);
+      }, lifetime: Lifetime.singleton);
+
+      final Scope child = root.createChild();
+      final _Box first = child.resolve<_Box>();
+      final _Box second = child.resolve<_Box>();
+
+      expect(first, same(second));
+      expect(createCount, 1);
+
+      final List<String> messages = logger.events
+          .map((event) => event.message)
+          .toList();
+
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('No local entry for _Box') &&
+                  message.contains('delegating to parent scope'),
+            )
+            .length,
+        2,
+      );
+      expect(
+        messages
+            .where(
+              (message) =>
+                  message.contains('Resolved _Box from child scope') &&
+                  message.contains('scope-local cache hit'),
+            )
+            .isEmpty,
+        isTrue,
+      );
     });
 
     test(
@@ -181,6 +336,54 @@ void main() {
 
         expect(first, isNot(same(second)));
         expect(createCount, 2);
+      },
+    );
+
+    test(
+      'transient parent registrations are never cached into child scope',
+      () {
+        final _TestLogger logger = _TestLogger();
+        Foundry.configureLogger(logger);
+
+        final GlobalScope root = GlobalScope.create();
+        int createCount = 0;
+
+        root.register<_Box>((_) {
+          createCount += 1;
+          return _Box(createCount);
+        }, lifetime: Lifetime.transient);
+
+        final Scope child = root.createChild();
+        final _Box first = child.resolve<_Box>();
+        final _Box second = child.resolve<_Box>();
+
+        expect(first, isNot(same(second)));
+        expect(createCount, 2);
+
+        final List<String> messages = logger.events
+            .map((event) => event.message)
+            .toList();
+
+        expect(
+          messages
+              .where(
+                (message) =>
+                    message.contains('No local entry for _Box') &&
+                    message.contains('delegating to parent scope'),
+              )
+              .length,
+          2,
+        );
+        expect(
+          messages
+              .where(
+                (message) =>
+                    message.contains('Resolved _Box from child scope') &&
+                    message.contains('scope-local cache hit'),
+              )
+              .isEmpty,
+          isTrue,
+        );
       },
     );
 
