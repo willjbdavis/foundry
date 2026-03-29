@@ -15,6 +15,7 @@ This runtime now enforces a typed result contract at both compile time and runti
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Concepts](#concepts)
 - [Typed Results Mechanisms](#typed-results-mechanisms)
 - [Setup](#setup)
@@ -30,7 +31,76 @@ This runtime now enforces a typed result contract at both compile time and runti
 
 ---
 
+## Quick Start
+
+### 1. Configure navigation
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
+
+void main() {
+  FoundryNavigator.configure(
+    FlutterNavigatorAdapter.fromKey(navigatorKey),
+  );
+
+  runApp(
+    MaterialApp(
+      navigatorKey: navigatorKey,
+      home: const Placeholder(),
+    ),
+  );
+}
+```
+
+### 2. Define a route
+
+```dart
+class HelloRoute extends RouteConfig<void> {
+  const HelloRoute();
+
+  @override
+  Route<void> build(BuildContext context) {
+    return MaterialPageRoute<void>(
+      builder: (_) => const Text('Hello'),
+    );
+  }
+
+  @override
+  Route<void> buildDeepLink(RouteSettings settings) {
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => const Text('Hello'),
+    );
+  }
+}
+```
+
+### 3. Navigate
+
+```dart
+await FoundryNavigator.push(const HelloRoute());
+```
+
+That's it. You now have typed navigation.
+
+---
+
 ## Concepts
+
+### TL;DR
+
+- `RouteConfig<T>` defines the route and its result type.
+- `FoundryNavigator` is the simple global entry point for most apps.
+- `NavigatorAdapter` decouples navigation from Flutter APIs.
+- Generated `@FoundryView` routes plug into this runtime automatically.
+
+### Navigation APIs
+
+- **`FoundryNavigator` (static)**: simple, global entry point for most apps.
+- **`FoundryNavigation` (instance)**: advanced explicit-target API for channels, nested navigators, and multi-stack flows.
 
 | Concept | Class | Role |
 |---|---|---|
@@ -80,6 +150,18 @@ Examples:
 - route expects `void`, `pop(anyNonNull)` throws `StateError`
 
 This protects against accidental type drift in large imperative flows.
+
+### Example: runtime validation
+
+```dart
+// Route expects bool
+final bool result = await FoundryNavigator.push(const ConfirmRoute());
+
+// Somewhere else:
+FoundryNavigator.pop('yes'); // throws StateError
+```
+
+This makes the result contract concrete at runtime, not just at the call site.
 
 ---
 
@@ -267,6 +349,13 @@ That keeps your view declarations close to navigation metadata while leaving the
 
 Deep-link handling is active only after you wire the generated resolver into your app router.
 
+### TL;DR
+
+- Deep links are compiled into a deterministic matcher tree.
+- Matching is fast and predictable.
+- Invalid matches return `null`.
+- A fallback path can be configured once globally.
+
 ### Required app wiring
 
 1. Generate `lib/app_deep_links.g.dart` by running build_runner.
@@ -344,6 +433,8 @@ Use `GeneratedDeepLinkResolver.debugDescribeTree()` to print the generated match
 ### `buildDeepLink` contract
 
 The resolver calls `buildDeepLink(RouteSettings)` instead of `build(BuildContext)` because no `BuildContext` is available during `MaterialApp.onGenerateRoute`.
+
+> In most cases, `buildDeepLink` is identical to `build`, except that you must forward `settings` to `MaterialPageRoute`.
 
 Every `RouteConfig` subclass must implement `buildDeepLink`. For `@FoundryView` routes, the generator emits this implementation automatically. For manually written routes, implement it by forwarding `settings` to `MaterialPageRoute`:
 
