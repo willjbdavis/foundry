@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'foundry.dart';
+import 'logging.dart';
 import 'state_emitter.dart';
 
 /// Base class for Foundry ViewModels.
@@ -18,6 +20,14 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   S get state {
     final S? s = _state;
     if (s == null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.error,
+          tag: 'vm.state',
+          message:
+              'State read before initialization in ${runtimeType.toString()}.',
+        ),
+      );
       throw StateError(
         'State has not been initialised. Call emitNewState() in onInit() '
         'before reading state.',
@@ -35,6 +45,14 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   @protected
   void emitNewState(S newState) {
     _state = newState;
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.state',
+        message: 'Emitted new state from ${runtimeType.toString()}.',
+      ),
+    );
+
     if (!_streamController.isClosed) {
       _streamController.add(newState);
     }
@@ -67,26 +85,94 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   Future<void> onError(Object error, StackTrace stackTrace) async {}
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnInit() => onInit();
+  Future<void> invokeOnInit() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.lifecycle',
+        message: 'invokeOnInit on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onInit();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnResumed() => onResumed();
+  Future<void> invokeOnResumed() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.lifecycle',
+        message: 'invokeOnResumed on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onResumed();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnPaused() => onPaused();
+  Future<void> invokeOnPaused() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.lifecycle',
+        message: 'invokeOnPaused on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onPaused();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnDispose() => onDispose();
+  Future<void> invokeOnDispose() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'vm.lifecycle',
+        message: 'invokeOnDispose on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onDispose();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<bool> invokeOnBackPressed() => onBackPressed();
+  Future<bool> invokeOnBackPressed() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.lifecycle',
+        message: 'invokeOnBackPressed on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onBackPressed();
+  }
 
   /// Framework-facing error entrypoint.
-  Future<void> invokeOnError(Object error, StackTrace stackTrace) =>
-      onError(error, stackTrace);
+  Future<void> invokeOnError(Object error, StackTrace stackTrace) {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.error,
+        tag: 'vm.error',
+        message: 'invokeOnError on ${runtimeType.toString()}.',
+        error: error,
+        stackTrace: stackTrace,
+      ),
+    );
+    return onError(error, stackTrace);
+  }
 
   /// Called by the framework during disposal to close the stream.
   Future<void> disposeStream() async {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'vm.lifecycle',
+        message: 'disposeStream on ${runtimeType.toString()}.',
+      ),
+    );
+
     await _controller?.close();
     _controller = null;
   }

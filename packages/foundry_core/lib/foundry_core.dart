@@ -3,6 +3,8 @@ export 'initializable.dart';
 export 'view_model_base.dart';
 export 'stateful_service_base.dart';
 export 'view_base.dart';
+export 'logging.dart';
+export 'foundry.dart';
 
 export 'di/scope.dart';
 export 'di/global_scope.dart';

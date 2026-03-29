@@ -1,5 +1,7 @@
 import 'scope.dart';
 import 'scope_key.dart';
+import '../foundry.dart';
+import '../logging.dart';
 
 /// Child scope for feature or view-specific registrations.
 ///
@@ -29,16 +31,39 @@ class ChildScope implements Scope {
     final String key = buildScopeKey<T>(named);
     final _Registration? registration = _registrations[key];
     if (registration != null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'di.child_scope',
+          message: 'Resolving local type $T from ChildScope.',
+        ),
+      );
+
       return registration.resolve(ownerScope: this, requestScope: targetScope)
           as T;
     }
 
     // Then fallback to parent scope if exists
     if (parent != null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'di.child_scope',
+          message: 'Falling back to parent scope for type $T.',
+        ),
+      );
+
       return parent!.resolve<T>(named: named, requestScope: targetScope);
     }
 
     // No registration found
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.error,
+        tag: 'di.child_scope',
+        message: 'Resolve failed: missing registration for type $T.',
+      ),
+    );
     throw StateError(
       'No registration found in scope hierarchy for type $T'
       '${named != null ? ' with name $named' : ''}.',
@@ -54,6 +79,13 @@ class ChildScope implements Scope {
     _throwIfDisposed();
     final String key = buildScopeKey<T>(named);
     _registrations[key] = _Registration(factory, lifetime);
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'di.child_scope',
+        message: 'Registered local type $T with lifetime $lifetime.',
+      ),
+    );
   }
 
   @override
@@ -61,6 +93,14 @@ class ChildScope implements Scope {
     _throwIfDisposed();
     final ChildScope child = ChildScope(this, onDispose: _onChildDisposed);
     _children.add(child);
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'di.child_scope',
+        message: 'Created nested child scope.',
+      ),
+    );
+
     return child;
   }
 
@@ -69,6 +109,14 @@ class ChildScope implements Scope {
     if (_disposed) {
       return;
     }
+
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'di.child_scope',
+        message: 'Disposing ChildScope with ${_children.length} children.',
+      ),
+    );
 
     for (final ChildScope child in List<ChildScope>.from(_children.reversed)) {
       child.dispose();
@@ -81,10 +129,24 @@ class ChildScope implements Scope {
 
   void _onChildDisposed(final ChildScope child) {
     _children.remove(child);
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'di.child_scope',
+        message: 'Nested child scope disposed.',
+      ),
+    );
   }
 
   void _throwIfDisposed() {
     if (_disposed) {
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.error,
+          tag: 'di.child_scope',
+          message: 'Operation attempted after ChildScope disposal.',
+        ),
+      );
       throw StateError('ChildScope has been disposed.');
     }
   }

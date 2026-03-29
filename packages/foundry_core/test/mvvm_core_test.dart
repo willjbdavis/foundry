@@ -7,6 +7,15 @@ class _Box {
   final int value;
 }
 
+class _TestLogger implements FoundryLogger {
+  final List<LogEvent> events = <LogEvent>[];
+
+  @override
+  void log(LogEvent event) {
+    events.add(event);
+  }
+}
+
 void main() {
   group('GlobalScope', () {
     test('register and resolve returns same scoped instance', () {
@@ -198,6 +207,56 @@ void main() {
 
       expect(() => child.resolve<int>(), throwsA(isA<StateError>()));
       expect(() => grandchild.resolve<int>(), throwsA(isA<StateError>()));
+    });
+  });
+
+  group('Foundry logging', () {
+    tearDown(() {
+      Foundry.clearLogger();
+    });
+
+    test('configureLogger routes events to logger object', () {
+      final _TestLogger logger = _TestLogger();
+      Foundry.configureLogger(logger);
+
+      Foundry.log(
+        const LogEvent(level: LogLevel.info, tag: 'test', message: 'hello'),
+      );
+
+      expect(logger.events, hasLength(1));
+      expect(logger.events.single.message, 'hello');
+      expect(logger.events.single.level, LogLevel.info);
+    });
+
+    test('configureLoggerFn routes events to callback', () {
+      final List<LogEvent> events = <LogEvent>[];
+      Foundry.configureLoggerFn(events.add);
+
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'test',
+          message: 'callback-event',
+        ),
+      );
+
+      expect(events, hasLength(1));
+      expect(events.single.message, 'callback-event');
+      expect(events.single.level, LogLevel.debug);
+    });
+
+    test('clearLogger disables logging without throwing', () {
+      final _TestLogger logger = _TestLogger();
+      Foundry.configureLogger(logger);
+      Foundry.clearLogger();
+
+      expect(
+        () => Foundry.log(
+          const LogEvent(level: LogLevel.warning, message: 'ignored'),
+        ),
+        returnsNormally,
+      );
+      expect(logger.events, isEmpty);
     });
   });
 }

@@ -8,6 +8,7 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 
 - [Concepts](#concepts)
 - [Setup](#setup)
+- [Global Logging](#global-logging)
 - [State and ViewModels](#state-and-viewmodels)
 - [Stateful Services](#stateful-services)
 - [Scoped Dependency Injection](#scoped-dependency-injection)
@@ -38,6 +39,61 @@ dependencies:
 ```
 
 If you are building a Flutter UI with Foundry, you will usually also depend on `foundry_flutter`, which re-exports `foundry_core` and adds widget-tree integration.
+
+---
+
+## Global Logging
+
+`foundry_core` exposes a global logger entrypoint that all Foundry runtime packages can use.
+
+### API
+
+- `FoundryLogger`: logger contract.
+- `LogLevel`: `debug`, `info`, `warning`, `error`.
+- `LogEvent`: structured event payload (`level`, `message`, optional `tag`, `error`, `stackTrace`).
+- `Foundry.configureLogger(...)`: register a logger object.
+- `Foundry.configureLoggerFn(...)`: register a callback directly.
+- `Foundry.log(...)`: emit an event.
+- `Foundry.clearLogger()`: reset logger state (primarily for tests).
+
+### Configure with a logger class
+
+```dart
+import 'package:foundry_core/foundry_core.dart';
+
+class AppFoundryLogger implements FoundryLogger {
+  @override
+  void log(LogEvent event) {
+    // Route to your logging stack.
+  }
+}
+
+void configureLogging() {
+  Foundry.configureLogger(AppFoundryLogger());
+}
+```
+
+### Configure with a callback
+
+```dart
+import 'package:foundry_core/foundry_core.dart';
+
+void configureLogging() {
+  Foundry.configureLoggerFn((LogEvent event) {
+    print('[${event.level.name}] ${event.tag ?? 'foundry'}: ${event.message}');
+  });
+}
+```
+
+### Event fields
+
+| Field | Type | Purpose |
+|---|---|---|
+| `level` | `LogLevel` | Severity classification. |
+| `message` | `String` | Human-readable event summary. |
+| `tag` | `String?` | Optional subsystem tag (for example `di.global_scope`, `nav.adapter`). |
+| `error` | `Object?` | Optional error object for failures. |
+| `stackTrace` | `StackTrace?` | Optional stack trace associated with `error`. |
 
 ---
 

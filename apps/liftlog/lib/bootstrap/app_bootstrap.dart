@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foundry_flutter/foundry_flutter.dart';
 import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';
@@ -21,6 +22,7 @@ class AppBootstrap {
 
   static Future<AppBootstrap> create() async {
     WidgetsFlutterBinding.ensureInitialized();
+    _configureLogging();
 
     final GlobalScope scope = GlobalScope.create();
     registerGeneratedGraph(scope);
@@ -45,5 +47,22 @@ class AppBootstrap {
       databaseService: databaseService,
       appThemeModel: appThemeModel,
     );
+  }
+
+  static void _configureLogging() {
+    if (kReleaseMode) {
+      return;
+    }
+
+    Foundry.configureLoggerFn((LogEvent event) {
+      final String tag = event.tag ?? 'foundry';
+      debugPrint('[${event.level.name}] $tag: ${event.message}');
+      if (event.error != null) {
+        debugPrint('[${event.level.name}] $tag error: ${event.error}');
+      }
+      if (event.stackTrace != null) {
+        debugPrint(event.stackTrace.toString());
+      }
+    });
   }
 }

@@ -23,6 +23,7 @@ This repository is a workspace containing the full stack:
 - [What Foundry Gives You](#what-foundry-gives-you)
 - [Exact New-App Walkthrough](#exact-new-app-walkthrough)
 - [Important Runtime Detail](#important-runtime-detail)
+- [Global Logging](#global-logging)
 - [Dependency Declaration](#dependency-declaration)
 - [How The Pieces Fit Together](#how-the-pieces-fit-together)
 - [Where To Read Next](#where-to-read-next)
@@ -359,6 +360,44 @@ HomeViewModel(this._repository) {
 ```
 
 The same rule applies to any `StateEmitter` you bind directly with `FoundryBuilder`, `FoundryListener`, or `FoundrySelectorBuilder`: it needs an initial state before the widget reads `emitter.state`.
+
+---
+
+## Global Logging
+
+Foundry runtime packages can emit structured logs through a single global logger in `foundry_core`.
+
+### Option A: configure with a function
+
+```dart
+import 'package:foundry_core/foundry_core.dart';
+
+void main() {
+  Foundry.configureLoggerFn((LogEvent event) {
+    // Pipe to print, crash reporter, analytics, etc.
+    print('[${event.level.name}] ${event.tag ?? 'foundry'}: ${event.message}');
+  });
+}
+```
+
+### Option B: configure with a logger class
+
+```dart
+import 'package:foundry_core/foundry_core.dart';
+
+class AppFoundryLogger implements FoundryLogger {
+  @override
+  void log(LogEvent event) {
+    // Send to your logging backend.
+  }
+}
+
+void main() {
+  Foundry.configureLogger(AppFoundryLogger());
+}
+```
+
+Once configured, core DI, ViewModel/service lifecycles, and navigation runtime paths can emit events to the same logger.
 
 ---
 

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'foundry.dart';
 import 'initializable.dart';
+import 'logging.dart';
 import 'state_emitter.dart';
 
 /// Base class for stateful services.
@@ -21,6 +23,14 @@ abstract class StatefulService<S>
   S get state {
     final S? s = _state;
     if (s == null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.error,
+          tag: 'service.state',
+          message:
+              'State read before initialization in ${runtimeType.toString()}.',
+        ),
+      );
       throw StateError(
         'State has not been initialised. Call emitNewState() in onInit() '
         'before reading state.',
@@ -38,6 +48,14 @@ abstract class StatefulService<S>
   @protected
   void emitNewState(S newState) {
     _state = newState;
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'service.state',
+        message: 'Emitted new state from ${runtimeType.toString()}.',
+      ),
+    );
+
     if (!_streamController.isClosed) {
       _streamController.add(newState);
     }
@@ -54,6 +72,13 @@ abstract class StatefulService<S>
   void subscribe(void Function(S state) listener) {
     if (!_listeners.contains(listener)) {
       _listeners.add(listener);
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'service.subscription',
+          message: 'Added listener in ${runtimeType.toString()}.',
+        ),
+      );
     }
   }
 
@@ -63,6 +88,13 @@ abstract class StatefulService<S>
   void unsubscribe(void Function(S state)? listener) {
     if (listener != null) {
       _listeners.remove(listener);
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'service.subscription',
+          message: 'Removed listener in ${runtimeType.toString()}.',
+        ),
+      );
     }
   }
 
@@ -83,22 +115,80 @@ abstract class StatefulService<S>
   Future<void> onDispose() async {}
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnInit() => onInit();
+  Future<void> invokeOnInit() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'service.lifecycle',
+        message: 'invokeOnInit on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onInit();
+  }
 
   @override
-  Future<void> initialize() => invokeOnInit();
+  Future<void> initialize() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'service.lifecycle',
+        message: 'initialize on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return invokeOnInit();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnResumed() => onResumed();
+  Future<void> invokeOnResumed() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'service.lifecycle',
+        message: 'invokeOnResumed on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onResumed();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnPaused() => onPaused();
+  Future<void> invokeOnPaused() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'service.lifecycle',
+        message: 'invokeOnPaused on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onPaused();
+  }
 
   /// Framework-facing lifecycle entrypoint.
-  Future<void> invokeOnDispose() => onDispose();
+  Future<void> invokeOnDispose() {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'service.lifecycle',
+        message: 'invokeOnDispose on ${runtimeType.toString()}.',
+      ),
+    );
+
+    return onDispose();
+  }
 
   /// Called by the framework during disposal to close the stream.
   Future<void> disposeStream() async {
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'service.lifecycle',
+        message: 'disposeStream on ${runtimeType.toString()}.',
+      ),
+    );
+
     _listeners.clear();
     await _controller?.close();
     _controller = null;

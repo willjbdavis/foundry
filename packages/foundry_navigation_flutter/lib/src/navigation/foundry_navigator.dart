@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:foundry_core/foundry_core.dart';
 
 import 'adapter.dart';
 import 'flutter_adapter.dart';
@@ -11,6 +12,14 @@ abstract final class FoundryNavigator {
   /// Configures the default [NavigatorAdapter] used by static navigation calls.
   static void configure(final NavigatorAdapter adapter) {
     _adapter = adapter;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.info,
+          tag: 'nav.navigator',
+          message: 'Configured global NavigatorAdapter.',
+        ),
+      );
+
   }
 
   /// Clears configured global adapter state.
@@ -18,6 +27,14 @@ abstract final class FoundryNavigator {
   /// Primarily useful in tests.
   static void reset() {
     _adapter = null;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.navigator',
+          message: 'Reset global NavigatorAdapter.',
+        ),
+      );
+
   }
 
   /// Pushes [config] and completes with the route result type [T].
@@ -32,6 +49,14 @@ abstract final class FoundryNavigator {
     final BuildContext? context,
     final NavigatorAdapter? adapter,
   }) {
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.navigator',
+          message: 'push for route ${config.runtimeType}.',
+        ),
+      );
+
     return _resolveAdapter(context: context, adapter: adapter).push<T>(config);
   }
 
@@ -43,6 +68,14 @@ abstract final class FoundryNavigator {
     BuildContext? context,
     NavigatorAdapter? adapter,
   ]) {
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.navigator',
+          message: 'pop called.',
+        ),
+      );
+
     _resolveAdapter(context: context, adapter: adapter).pop(result);
   }
 
@@ -54,6 +87,14 @@ abstract final class FoundryNavigator {
     BuildContext? context,
     NavigatorAdapter? adapter,
   ]) {
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.navigator',
+          message: 'maybePop called.',
+        ),
+      );
+
     return _resolveAdapter(context: context, adapter: adapter).maybePop(result);
   }
 
@@ -62,6 +103,14 @@ abstract final class FoundryNavigator {
     final BuildContext? context,
     final NavigatorAdapter? adapter,
   }) {
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.navigator',
+          message: 'canPop queried.',
+        ),
+      );
+
     return _resolveAdapter(context: context, adapter: adapter).canPop();
   }
 
@@ -70,18 +119,49 @@ abstract final class FoundryNavigator {
     final NavigatorAdapter? adapter,
   }) {
     if (adapter != null) {
+              Foundry.log(
+          const LogEvent(
+            level: LogLevel.debug,
+            tag: 'nav.navigator',
+            message: 'Using explicit adapter.',
+          ),
+        );
+
       return adapter;
     }
 
     final NavigatorAdapter? configured = _adapter;
     if (configured != null) {
+              Foundry.log(
+          const LogEvent(
+            level: LogLevel.debug,
+            tag: 'nav.navigator',
+            message: 'Using configured global adapter.',
+          ),
+        );
+
       return configured;
     }
 
     if (context != null) {
+              Foundry.log(
+          const LogEvent(
+            level: LogLevel.debug,
+            tag: 'nav.navigator',
+            message: 'Using context-derived adapter.',
+          ),
+        );
+
       return FlutterNavigatorAdapter.fromContext(context);
     }
 
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.error,
+        tag: 'nav.navigator',
+        message: 'No adapter available for navigation call.',
+      ),
+    );
     throw StateError(
       'No NavigatorAdapter configured. Call FoundryNavigator.configure(...) '
       'or pass a BuildContext/adapter per call.',

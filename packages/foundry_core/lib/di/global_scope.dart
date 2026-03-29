@@ -1,6 +1,8 @@
 import 'scope.dart';
 import 'child_scope.dart';
 import 'scope_key.dart';
+import '../foundry.dart';
+import '../logging.dart';
 
 /// Global scope for the application.
 ///
@@ -24,11 +26,26 @@ class GlobalScope implements Scope {
     final String key = buildScopeKey<T>(named);
     final _Registration? registration = _registrations[key];
     if (registration == null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.error,
+          tag: 'di.global_scope',
+          message: 'Resolve failed: missing registration for type $T.',
+        ),
+      );
       throw StateError(
         'No registration found in GlobalScope for type $T'
         '${named != null ? ' with name $named' : ''}.',
       );
     }
+
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'di.global_scope',
+        message: 'Resolving type $T from GlobalScope.',
+      ),
+    );
 
     return registration.resolve(ownerScope: this, requestScope: targetScope)
         as T;
@@ -43,6 +60,13 @@ class GlobalScope implements Scope {
     _throwIfDisposed();
     final String key = buildScopeKey<T>(named);
     _registrations[key] = _Registration(factory, lifetime);
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'di.global_scope',
+        message: 'Registered type $T with lifetime $lifetime.',
+      ),
+    );
   }
 
   @override
@@ -50,6 +74,14 @@ class GlobalScope implements Scope {
     _throwIfDisposed();
     final ChildScope child = ChildScope(this, onDispose: _onChildDisposed);
     _children.add(child);
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'di.global_scope',
+        message: 'Created child scope.',
+      ),
+    );
+
     return child;
   }
 
@@ -58,6 +90,14 @@ class GlobalScope implements Scope {
     if (_disposed) {
       return;
     }
+
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.info,
+        tag: 'di.global_scope',
+        message: 'Disposing GlobalScope with ${_children.length} children.',
+      ),
+    );
 
     for (final ChildScope child in List<ChildScope>.from(_children.reversed)) {
       child.dispose();
@@ -69,10 +109,24 @@ class GlobalScope implements Scope {
 
   void _onChildDisposed(final ChildScope child) {
     _children.remove(child);
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'di.global_scope',
+        message: 'Child scope disposed.',
+      ),
+    );
   }
 
   void _throwIfDisposed() {
     if (_disposed) {
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.error,
+          tag: 'di.global_scope',
+          message: 'Operation attempted after GlobalScope disposal.',
+        ),
+      );
       throw StateError('GlobalScope has been disposed.');
     }
   }

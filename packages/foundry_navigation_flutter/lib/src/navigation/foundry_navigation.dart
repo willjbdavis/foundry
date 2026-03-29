@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:foundry_core/foundry_core.dart';
 
 import 'adapter.dart';
 import 'flutter_adapter.dart';
@@ -45,6 +46,13 @@ class FoundryNavigation {
   static FoundryNavigation get instance {
     final FoundryNavigation? nav = _instance;
     if (nav == null) {
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.error,
+          tag: 'nav.service',
+          message: 'FoundryNavigation.instance requested before configure.',
+        ),
+      );
       throw StateError(
         'FoundryNavigation not configured. '
         'Call FoundryNavigation.configure(...) at startup.',
@@ -56,11 +64,27 @@ class FoundryNavigation {
   /// Sets the app-wide [FoundryNavigation] instance.
   static void configure(FoundryNavigation navigation) {
     _instance = navigation;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.info,
+          tag: 'nav.service',
+          message: 'Configured FoundryNavigation instance.',
+        ),
+      );
+
   }
 
   /// Clears the app-wide instance. Primarily useful in tests.
   static void reset() {
     _instance = null;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.service',
+          message: 'Reset FoundryNavigation instance.',
+        ),
+      );
+
   }
 
   final NavigatorAdapter _defaultAdapter;
@@ -81,6 +105,14 @@ class FoundryNavigation {
   /// Registering with the same [key] replaces the previous adapter.
   void registerChannel(String key, NavigatorAdapter adapter) {
     _channels[key] = adapter;
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.info,
+          tag: 'nav.channel',
+          message: 'Registered channel "$key".',
+        ),
+      );
+
   }
 
   /// Unregisters a named channel.
@@ -88,6 +120,14 @@ class FoundryNavigation {
   /// If the last target was this channel, the last target is cleared.
   void unregisterChannel(String key) {
     _channels.remove(key);
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.info,
+          tag: 'nav.channel',
+          message: 'Unregistered channel "$key".',
+        ),
+      );
+
     if (_lastTargetType == NavTargetType.channel && _lastChannelKey == key) {
       _clearLastTarget();
     }
@@ -112,12 +152,28 @@ class FoundryNavigation {
   /// The returned future resolves with the route's declared result type [T].
   Future<T> pushDefault<T>(RouteConfig<T> config) {
     _recordLastDefault();
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.push',
+          message: 'pushDefault route ${config.runtimeType}.',
+        ),
+      );
+
     return _defaultAdapter.push<T>(config);
   }
 
   /// Pushes [config] onto the navigator nearest to [context].
   Future<T> pushInContext<T>(BuildContext context, RouteConfig<T> config) {
     _recordLastContext(context);
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.push',
+          message: 'pushInContext route ${config.runtimeType}.',
+        ),
+      );
+
     return FlutterNavigatorAdapter.fromContext(context).push<T>(config);
   }
 
@@ -127,6 +183,14 @@ class FoundryNavigation {
   Future<T> pushInChannel<T>(String channelKey, RouteConfig<T> config) {
     final NavigatorAdapter adapter = _resolveChannel(channelKey);
     _recordLastChannel(channelKey);
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.push',
+          message: 'pushInChannel "$channelKey" route ${config.runtimeType}.',
+        ),
+      );
+
     return adapter.push<T>(config);
   }
 
@@ -136,6 +200,14 @@ class FoundryNavigation {
     RouteConfig<T> config,
   ) {
     _recordLastNavigator(navigator);
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.push',
+          message: 'pushInNavigator route ${config.runtimeType}.',
+        ),
+      );
+
     return navigator.push<T>(config);
   }
 
@@ -143,6 +215,14 @@ class FoundryNavigation {
   ///
   /// Throws [StateError] if no previous target exists.
   Future<T> pushInLast<T>(RouteConfig<T> config) {
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.push',
+          message: 'pushInLast route ${config.runtimeType}.',
+        ),
+      );
+
     return _resolveLastAdapter().push<T>(config);
   }
 
@@ -155,6 +235,14 @@ class FoundryNavigation {
   /// Throws [StateError] when [result] violates the current route contract.
   void popDefault([Object? result]) {
     _recordLastDefault();
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.pop',
+          message: 'popDefault called.',
+        ),
+      );
+
     _defaultAdapter.pop(result);
   }
 
@@ -163,6 +251,14 @@ class FoundryNavigation {
   /// Throws [StateError] when [result] violates the current route contract.
   void popInContext(BuildContext context, [Object? result]) {
     _recordLastContext(context);
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.pop',
+          message: 'popInContext called.',
+        ),
+      );
+
     FlutterNavigatorAdapter.fromContext(context).pop(result);
   }
 
@@ -173,6 +269,14 @@ class FoundryNavigation {
   void popInChannel(String channelKey, [Object? result]) {
     final NavigatorAdapter adapter = _resolveChannel(channelKey);
     _recordLastChannel(channelKey);
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.pop',
+          message: 'popInChannel "$channelKey" called.',
+        ),
+      );
+
     adapter.pop(result);
   }
 
@@ -181,6 +285,14 @@ class FoundryNavigation {
   /// Throws [StateError] when [result] violates the current route contract.
   void popInNavigator(NavigatorAdapter navigator, [Object? result]) {
     _recordLastNavigator(navigator);
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.pop',
+          message: 'popInNavigator called.',
+        ),
+      );
+
     navigator.pop(result);
   }
 
@@ -188,6 +300,14 @@ class FoundryNavigation {
   ///
   /// Throws [StateError] if no previous target exists.
   void popInLast([Object? result]) {
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.pop',
+          message: 'popInLast called.',
+        ),
+      );
+
     _resolveLastAdapter().pop(result);
   }
 
@@ -217,6 +337,13 @@ class FoundryNavigation {
     try {
       return _resolveLastAdapter().canPop();
     } on StateError {
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.warning,
+          tag: 'nav.pop',
+          message: 'canPopInLast failed because last target is stale.',
+        ),
+      );
       return false;
     }
   }
@@ -267,6 +394,13 @@ class FoundryNavigation {
   NavigatorAdapter _resolveChannel(String channelKey) {
     final NavigatorAdapter? adapter = _channels[channelKey];
     if (adapter == null) {
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.error,
+          tag: 'nav.channel',
+          message: 'Unknown channel "$channelKey".',
+        ),
+      );
       throw StateError(
         'No channel registered with key "$channelKey". '
         'Call registerChannel("$channelKey", adapter) first.',
@@ -286,6 +420,13 @@ class FoundryNavigation {
       case NavTargetType.navigator:
         return _lastNavigatorAdapter!;
       case null:
+        Foundry.log(
+          const LogEvent(
+            level: LogLevel.error,
+            tag: 'nav.service',
+            message: 'No previous target for *InLast operation.',
+          ),
+        );
         throw StateError(
           'No previous navigation target. '
           'Use an explicit push/pop method before calling *InLast variants.',

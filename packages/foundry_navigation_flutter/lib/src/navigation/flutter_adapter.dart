@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:foundry_core/foundry_core.dart';
 
 import 'adapter.dart';
 import 'route_config.dart';
@@ -72,12 +73,27 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final BuildContext context = _contextResolver();
     final RouteResultContract contract = config.resultContract;
+          Foundry.log(
+        LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.adapter',
+          message: 'push route ${config.runtimeType}.',
+        ),
+      );
+
     _stackForNavigator(navigator).add(contract);
     return navigator.push<T>(config.build(context)).then((T? value) {
       if (!contract.accepts(value)) {
         final String actualType = value == null
             ? 'null'
             : value.runtimeType.toString();
+        Foundry.log(
+          LogEvent(
+            level: LogLevel.error,
+            tag: 'nav.adapter',
+            message: 'Invalid completion result for pushed route.',
+          ),
+        );
         throw StateError(
           'Invalid navigation completion result for push. '
           'Expected ${contract.debugType} '
@@ -85,6 +101,14 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
           'but received $actualType.',
         );
       }
+              Foundry.log(
+          const LogEvent(
+            level: LogLevel.debug,
+            tag: 'nav.adapter',
+            message: 'push completed with valid result.',
+          ),
+        );
+
       return value as T;
     });
   }
@@ -94,6 +118,14 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final List<RouteResultContract> stack = _stackForNavigator(navigator);
     final RouteResultContract? contract = stack.isNotEmpty ? stack.last : null;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.adapter',
+          message: 'pop called.',
+        ),
+      );
+
     _validateResult(contract, result, operation: 'pop');
     navigator.pop(result);
     if (contract != null) {
@@ -106,6 +138,14 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final List<RouteResultContract> stack = _stackForNavigator(navigator);
     final RouteResultContract? contract = stack.isNotEmpty ? stack.last : null;
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.adapter',
+          message: 'maybePop called.',
+        ),
+      );
+
     _validateResult(contract, result, operation: 'maybePop');
     final bool popped = await navigator.maybePop(result);
     if (popped && contract != null) {
@@ -116,12 +156,28 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
 
   @override
   bool canPop() {
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.adapter',
+          message: 'canPop queried.',
+        ),
+      );
+
     return _navigatorResolver().canPop();
   }
 
   @override
   void popToRoot() {
     final NavigatorState navigator = _navigatorResolver();
+          Foundry.log(
+        const LogEvent(
+          level: LogLevel.info,
+          tag: 'nav.adapter',
+          message: 'popToRoot called.',
+        ),
+      );
+
     _stackForNavigator(navigator).clear();
     navigator.popUntil((route) => route.isFirst);
   }
@@ -139,6 +195,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
       final String actualType = result == null
           ? 'null'
           : result.runtimeType.toString();
+      Foundry.log(
+        LogEvent(
+          level: LogLevel.error,
+          tag: 'nav.adapter',
+          message: 'Invalid result for $operation.',
+        ),
+      );
       throw StateError(
         'Invalid navigation result for $operation. '
         'Expected ${contract.debugType} '
