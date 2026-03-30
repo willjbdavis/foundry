@@ -2,7 +2,6 @@
 // ignore_for_file: type=lint, unused_import
 
 import 'package:foundry_core/foundry_core.dart';
-import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';
 import 'package:lift_log/core/persistence/hive_database_service.dart';
 import 'package:lift_log/core/theme/app_theme_model.dart';
 import 'package:lift_log/core/theme/settings_repository.dart';
@@ -153,27 +152,4 @@ abstract final class FoundryTestScope {
       registrar(scope, factory);
     }
   }
-}
-
-/// Centralized deep link coordinator generated from @View(deepLink:...) annotations.
-abstract final class DeepLinkCoordinator {
-  /// Returns the first [RouteConfig] that matches [uri], or null.
-  static RouteConfig? match(Uri uri) {
-    for (final matcher in _matchers) {
-      final route = matcher(uri);
-      if (route != null) return route;
-    }
-    return null;
-  }
-
-  static final List<RouteConfig? Function(Uri)> _matchers = [
-    AboutViewRoute.matchDeepLink,
-    ExerciseEditorViewRoute.matchDeepLink,
-    ExercisesDatabaseViewRoute.matchDeepLink,
-    WorkoutDetailViewRoute.matchDeepLink,
-    WorkoutHistoryViewRoute.matchDeepLink,
-    HomeViewRoute.matchDeepLink,
-    SettingsViewRoute.matchDeepLink,
-    AppShellViewRoute.matchDeepLink,
-  ];
 }

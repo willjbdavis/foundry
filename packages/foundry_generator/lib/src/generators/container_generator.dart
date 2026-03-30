@@ -2,6 +2,7 @@ import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:foundry_annotations/foundry_annotations.dart';
+import 'dependency_graph_utils.dart';
 
 /// Aggregating generator that reads all @Service and @ViewModel annotations
 /// from the library pointed to by `lib/app_module.dart` and emits:
@@ -205,33 +206,11 @@ class AppContainerBuilder implements Builder {
     // ---- Topological sort of services ----
     final sortedServices = _topologicalSort(services);
 
-    // ---- Collect @View entries for deep link coordinator ----
-    final viewsWithDeepLinks = <_ViewDeepLinkEntry>[];
-    final deepLinksByView = <String, _ViewDeepLinkEntry>{};
-    for (final reader in readers) {
-      for (final annotatedElement in reader.annotatedWith(
-        TypeChecker.fromRuntime(FoundryView),
-      )) {
-        final element = annotatedElement.element;
-        if (element is! ClassElement) continue;
-        final annotation = annotatedElement.annotation;
-        final deepLink = annotation.peek('deepLink')?.stringValue;
-        if (deepLink != null) {
-          deepLinksByView[element.displayName] = _ViewDeepLinkEntry(
-            name: element.displayName,
-            deepLink: deepLink,
-          );
-        }
-      }
-    }
-    viewsWithDeepLinks.addAll(deepLinksByView.values);
-
     // ---- Generate app_container.g.dart ----
     await _writeContainerFile(
       buildStep,
       sortedServices,
       viewModels,
-      viewsWithDeepLinks,
       importUris,
     );
   }
@@ -240,7 +219,6 @@ class AppContainerBuilder implements Builder {
     BuildStep buildStep,
     List<_ServiceEntry> services,
     List<_ViewModelEntry> viewModels,
-    List<_ViewDeepLinkEntry> viewsWithDeepLinks,
     Set<String> importUris,
   ) async {
     final outputId = AssetId(
@@ -253,11 +231,6 @@ class AppContainerBuilder implements Builder {
     buffer.writeln('// ignore_for_file: type=lint, unused_import');
     buffer.writeln('');
     buffer.writeln("import 'package:foundry_core/foundry_core.dart';");
-    if (viewsWithDeepLinks.isNotEmpty) {
-      buffer.writeln(
-        "import 'package:foundry_navigation_flutter/foundry_navigation_flutter.dart';",
-      );
-    }
     for (final uri in importUris) {
       buffer.writeln("import '$uri';");
     }
@@ -392,34 +365,6 @@ class AppContainerBuilder implements Builder {
     buffer.writeln('  }');
     buffer.writeln('}');
 
-    // DeepLinkCoordinator
-    if (viewsWithDeepLinks.isNotEmpty) {
-      buffer.writeln('');
-      buffer.writeln(
-        '/// Centralized deep link coordinator generated from @View(deepLink:...) annotations.',
-      );
-      buffer.writeln('abstract final class DeepLinkCoordinator {');
-      buffer.writeln(
-        '  /// Returns the first [RouteConfig] that matches [uri], or null.',
-      );
-      buffer.writeln('  static RouteConfig? match(Uri uri) {');
-      buffer.writeln('    for (final matcher in _matchers) {');
-      buffer.writeln('      final route = matcher(uri);');
-      buffer.writeln('      if (route != null) return route;');
-      buffer.writeln('    }');
-      buffer.writeln('    return null;');
-      buffer.writeln('  }');
-      buffer.writeln('');
-      buffer.writeln(
-        '  static final List<RouteConfig? Function(Uri)> _matchers = [',
-      );
-      for (final view in viewsWithDeepLinks) {
-        buffer.writeln('    ${view.name}Route.matchDeepLink,');
-      }
-      buffer.writeln('  ];');
-      buffer.writeln('}');
-    }
-
     await buildStep.writeAsString(outputId, buffer.toString());
   }
 }
@@ -537,12 +482,6 @@ class _ViewModelEntry {
   final String lifetime;
 }
 
-class _ViewDeepLinkEntry {
-  _ViewDeepLinkEntry({required this.name, required this.deepLink});
-  final String name;
-  final String deepLink;
-}
-
 /// Kahn's algorithm topological sort.  Throws [InvalidGenerationSourceError]
 /// on cycles (since we're inside a builder we throw [StateError] instead —
 /// build_runner will report it cleanly).
@@ -554,97 +493,4 @@ List<_ServiceEntry> _topologicalSort(List<_ServiceEntry> services) {
   final sortedNames = topologicallySortDependencyGraph(dependencyMap);
 
   return sortedNames.map((name) => nameToEntry[name]!).toList();
-}
-
-/// Returns constructor parameter types that also exist as generated @Service names.
-///
-/// This keeps constructor wiring and dependency ordering aligned so dependency
-/// declarations do not drift.
-List<String> inferConstructorServiceDependencies(
-  List<String> ctorParamTypes,
-  Set<String> knownServiceNames,
-) {
-  final inferred = <String>[];
-  for (final paramType in ctorParamTypes) {
-    if (knownServiceNames.contains(paramType) &&
-        !inferred.contains(paramType)) {
-      inferred.add(paramType);
-    }
-  }
-  return inferred;
-}
-
-/// Merges inferred constructor dependencies with explicit `dependsOn` metadata.
-///
-/// Constructor dependencies are primary and explicit dependencies are appended
-/// only when they add extra ordering constraints.
-List<String> mergeServiceDependencies({
-  required List<String> constructorDependencies,
-  required List<String> explicitDependsOn,
-}) {
-  final merged = <String>[...constructorDependencies];
-  for (final dep in explicitDependsOn) {
-    if (!merged.contains(dep)) {
-      merged.add(dep);
-    }
-  }
-  return merged;
-}
-
-/// Kahn's algorithm topological sort for a dependency map.
-///
-/// Input is `node -> dependencies`. The output is deterministic and
-/// lexicographically ordered for ties.
-List<String> topologicallySortDependencyGraph(
-  Map<String, List<String>> dependencyMap,
-) {
-  final graph = <String, List<String>>{
-    for (final node in dependencyMap.keys) node: <String>[],
-  };
-
-  final inDegree = {for (final node in dependencyMap.keys) node: 0};
-
-  for (final entry in dependencyMap.entries) {
-    final serviceName = entry.key;
-    for (final dep in entry.value) {
-      if (dependencyMap.containsKey(dep)) {
-        graph[dep]!.add(serviceName);
-        inDegree[serviceName] = (inDegree[serviceName] ?? 0) + 1;
-      }
-    }
-  }
-
-  for (final neighbors in graph.values) {
-    neighbors.sort();
-  }
-
-  final queue = <String>[
-    ...inDegree.entries.where((e) => e.value == 0).map((e) => e.key),
-  ];
-  queue.sort();
-  final sorted = <String>[];
-
-  while (queue.isNotEmpty) {
-    final node = queue.removeAt(0);
-    sorted.add(node);
-    for (final neighbor in graph[node] ?? []) {
-      inDegree[neighbor] = inDegree[neighbor]! - 1;
-      if (inDegree[neighbor] == 0) {
-        queue.add(neighbor);
-      }
-    }
-    queue.sort();
-  }
-
-  if (sorted.length != dependencyMap.length) {
-    final cycle = dependencyMap.keys
-        .where((name) => !sorted.contains(name))
-        .join(', ');
-    throw StateError(
-      'Circular dependency detected in @Service graph: $cycle. '
-      'Check constructor dependencies and `dependsOn` fields for cycles.',
-    );
-  }
-
-  return sorted;
 }

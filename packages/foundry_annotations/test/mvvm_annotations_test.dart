@@ -94,5 +94,39 @@ void main() {
       expect(view.deepLinkArgsFactory, parseArgsFromUri);
       expect(view.name, 'HomeView');
     });
+
+    test('View supports typed args and result without a deepLink', () {
+      const FoundryView view = FoundryView(
+        route: '/product',
+        args: String,
+        result: bool,
+      );
+
+      expect(view.route, '/product');
+      expect(view.args, String);
+      expect(view.result, bool);
+      expect(view.deepLink, isNull);
+      expect(view.deepLinkArgsFactory, isNull);
+    });
+
+    test('ViewModel supports transient lifetime', () {
+      const FoundryViewModel viewModel = FoundryViewModel(
+        lifetime: 'transient',
+      );
+      expect(viewModel.lifetime, 'transient');
+    });
+
+    test('Service supports scoped lifetime', () {
+      const FoundryService service = FoundryService(lifetime: 'scoped');
+      expect(service.lifetime, 'scoped');
+    });
+
+    test('Service supports stateless named service', () {
+      const FoundryService service = FoundryService(name: 'AnalyticsService');
+      expect(service.stateful, isFalse);
+      expect(service.name, 'AnalyticsService');
+      expect(service.lifetime, 'singleton');
+      expect(service.dependsOn, isNull);
+    });
   });
 }

@@ -401,7 +401,7 @@ abstract final class FoundryTestScope {
 
 ### `lib/app_deep_links.g.dart`
 
-If `app_module.dart` exposes views with `deepLink:` metadata, the builder also generates a `DeepLinkCoordinator` that tries all generated `matchDeepLink` functions in order.
+If `app_module.dart` exposes views with `deepLink:` metadata, the deep-link builder generates `app_deep_links.g.dart` with `GeneratedDeepLinkResolver`, including matcher-tree traversal and overlap validation.
 
 ---
 

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foundry_generator/src/generators/container_generator.dart';
+import 'package:foundry_generator/src/generators/dependency_graph_utils.dart';
 import 'package:foundry_generator/src/generators/generator_utils.dart';
 
 void main() {

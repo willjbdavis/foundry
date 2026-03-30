@@ -462,4 +462,240 @@ void main() {
       expect(logger.events, isEmpty);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // FoundryViewModel
+  // ---------------------------------------------------------------------------
+
+  group('FoundryViewModel', () {
+    late _CounterViewModel vm;
+
+    setUp(() => vm = _CounterViewModel());
+    tearDown(() => vm.disposeStream());
+
+    test('state throws StateError before any state emitted', () {
+      expect(() => vm.state, throwsA(isA<StateError>()));
+    });
+
+    test('state returns the last emitted value', () {
+      vm.push(1);
+      expect(vm.state, 1);
+      vm.push(42);
+      expect(vm.state, 42);
+    });
+
+    test('emitNewState emits to states stream', () async {
+      // Subscribe before pushing so no events are missed on a broadcast stream.
+      final Future<List<int>> future = vm.states.take(3).toList();
+
+      vm.push(10);
+      vm.push(20);
+      vm.push(30);
+
+      expect(await future, <int>[10, 20, 30]);
+    });
+
+    test('onInit hook is invoked by invokeOnInit', () async {
+      expect(vm.initCalled, isFalse);
+      await vm.invokeOnInit();
+      expect(vm.initCalled, isTrue);
+    });
+
+    test('onResumed hook is invoked by invokeOnResumed', () async {
+      expect(vm.resumedCalled, isFalse);
+      await vm.invokeOnResumed();
+      expect(vm.resumedCalled, isTrue);
+    });
+
+    test('onPaused hook is invoked by invokeOnPaused', () async {
+      expect(vm.pausedCalled, isFalse);
+      await vm.invokeOnPaused();
+      expect(vm.pausedCalled, isTrue);
+    });
+
+    test('onDispose hook is invoked by invokeOnDispose', () async {
+      expect(vm.disposeCalled, isFalse);
+      await vm.invokeOnDispose();
+      expect(vm.disposeCalled, isTrue);
+    });
+
+    test('onBackPressed returns true by default', () async {
+      final bool result = await vm.invokeOnBackPressed();
+      expect(result, isTrue);
+    });
+
+    test('disposeStream closes the states stream', () async {
+      vm.push(1);
+
+      bool doneFired = false;
+      vm.states.listen(null, onDone: () => doneFired = true);
+
+      vm.disposeStream();
+      // yield so the stream onDone callback fires
+      await Future<void>.microtask(() {});
+
+      expect(doneFired, isTrue);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // StatefulService
+  // ---------------------------------------------------------------------------
+
+  group('StatefulService', () {
+    late _CounterService service;
+
+    setUp(() => service = _CounterService());
+    tearDown(() => service.disposeStream());
+
+    test('state throws StateError before any state emitted', () {
+      expect(() => service.state, throwsA(isA<StateError>()));
+    });
+
+    test('emitNewState updates state and broadcasts to stream', () async {
+      // Subscribe before pushing so no events are missed on a broadcast stream.
+      final Future<List<int>> future = service.states.take(2).toList();
+
+      service.push(5);
+      service.push(10);
+
+      expect(await future, <int>[5, 10]);
+      expect(service.state, 10);
+    });
+
+    test('subscribe listener receives future emissions', () {
+      final List<int> received = <int>[];
+      service.subscribe(received.add);
+
+      service.push(7);
+      service.push(8);
+
+      expect(received, <int>[7, 8]);
+    });
+
+    test('unsubscribe stops listener receiving emissions', () {
+      final List<int> received = <int>[];
+      void listener(int v) => received.add(v);
+
+      service.subscribe(listener);
+      service.push(1);
+      service.unsubscribe(listener);
+      service.push(2);
+
+      expect(received, <int>[1]);
+    });
+
+    test('duplicate subscribe is ignored (called once per emission)', () {
+      int callCount = 0;
+      void listener(int _) => callCount++;
+
+      service.subscribe(listener);
+      service.subscribe(listener); // duplicate
+      service.push(99);
+
+      expect(callCount, 1);
+    });
+
+    test('initialize delegates to onInit hook', () async {
+      expect(service.initCalled, isFalse);
+      await service.initialize();
+      expect(service.initCalled, isTrue);
+    });
+
+    test('disposeStream closes stream without error', () async {
+      service.push(1);
+
+      bool doneFired = false;
+      service.states.listen(null, onDone: () => doneFired = true);
+
+      service.disposeStream();
+      await Future<void>.microtask(() {});
+
+      expect(doneFired, isTrue);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Container
+  // ---------------------------------------------------------------------------
+
+  group('Container', () {
+    test('register and resolve delegates to global scope', () {
+      final Container container = Container();
+      container.register<int>((_) => 42);
+      expect(container.resolve<int>(), 42);
+    });
+
+    test('createChild returns scope with parent fallback', () {
+      final Container container = Container();
+      container.register<String>((_) => 'hello');
+
+      final Scope child = container.createChild();
+      expect(child.resolve<String>(), 'hello');
+    });
+
+    test('globalScope is accessible and consistent with container', () {
+      final Container container = Container();
+      container.register<double>((_) => 3.14);
+
+      expect(container.globalScope.resolve<double>(), 3.14);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Foundry deep-link fallback
+  // ---------------------------------------------------------------------------
+
+  group('Foundry deep-link fallback', () {
+    tearDown(() => Foundry.clearDeepLinkFallbackPath());
+
+    test('configureDeepLinkFallbackPath stores value', () {
+      Foundry.configureDeepLinkFallbackPath('/home');
+      expect(Foundry.deepLinkFallbackPath, '/home');
+    });
+
+    test('clearDeepLinkFallbackPath resets to null', () {
+      Foundry.configureDeepLinkFallbackPath('/home');
+      Foundry.clearDeepLinkFallbackPath();
+      expect(Foundry.deepLinkFallbackPath, isNull);
+    });
+
+    test('deepLinkFallbackPath is null before configuration', () {
+      expect(Foundry.deepLinkFallbackPath, isNull);
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Concrete test subclasses
+// ---------------------------------------------------------------------------
+
+class _CounterViewModel extends FoundryViewModel<int> {
+  bool initCalled = false;
+  bool resumedCalled = false;
+  bool pausedCalled = false;
+  bool disposeCalled = false;
+
+  void push(int value) => emitNewState(value);
+
+  @override
+  Future<void> onInit() async => initCalled = true;
+
+  @override
+  Future<void> onResumed() async => resumedCalled = true;
+
+  @override
+  Future<void> onPaused() async => pausedCalled = true;
+
+  @override
+  Future<void> onDispose() async => disposeCalled = true;
+}
+
+class _CounterService extends StatefulService<int> {
+  bool initCalled = false;
+
+  void push(int value) => emitNewState(value);
+
+  @override
+  Future<void> onInit() async => initCalled = true;
 }

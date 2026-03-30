@@ -27,7 +27,7 @@ This package re-exports everything from `foundry_core` and adds Flutter-specific
 | State-driven builder | `FoundryBuilder<S>` | Rebuilds its subtree every time a `StateEmitter` emits. |
 | Side-effect listener | `FoundryListener<S>` | Runs a callback on every emission without rebuilding. |
 | Selective builder | `FoundrySelectorBuilder<S>` | Rebuilds only when your selector function returns `true`. |
-| State mixin | `FoundryState` | The underlying `State` implementation - used internally; exposed for custom views. |
+| State mixin | `FoundryState` | The underlying `State` implementation — exposed for custom views. Provides `isBound`, `viewModel`, `currentState`, and `oldState` accessors for subclasses that need direct ViewModel access during the build phase. |
 
 ---
 
@@ -122,6 +122,8 @@ FoundryScope(
 )
 ```
 
+If no `FoundryScope` is found above the given `context`, `FoundryScope.of` throws a `StateError`. This is by design — every widget that uses the DI container must be within a `FoundryScope`.
+
 ### Child scopes
 
 `FoundryScope.childScope()` creates an automatically managed child scope that is disposed when the subtree is removed. Use this to give a feature sub-tree its own scoped registrations:
@@ -132,7 +134,7 @@ FoundryScope.childScope(
 )
 ```
 
-The child scope is recreated automatically if the parent scope changes (e.g. after a hot restart in development).
+The child scope is created as a child of the nearest ancestor `FoundryScope`. It inherits all parent registrations and can add or shadow its own. The scope is disposed automatically when the widget is removed from the tree, and is recreated if the parent scope instance changes.
 
 ---
 
@@ -171,6 +173,8 @@ FoundryListener<HomeState>(
 )
 ```
 
+> **Important:** The `listener` callback is NOT called for the initial state. It fires only for emissions that occur after the widget is mounted. When it does fire, `oldState` is always the previous known state (never `null`). If you also need to react to the current state on first mount, read `emitter.state` directly in your build method or combine with `FoundryBuilder`.
+
 ---
 
 ## `FoundrySelectorBuilder`
@@ -189,6 +193,12 @@ FoundrySelectorBuilder<HomeState>(
   },
 )
 ```
+
+A few behavioral notes:
+
+- The `selector` is **not called on the initial build**. The widget always renders once immediately with the current state from `emitter.state`.
+- The `builder` callback receives `(BuildContext context, S state)` — there is no `oldState` parameter, unlike `FoundryBuilder`. If you need `oldState` to drive your UI, use `FoundryBuilder` instead.
+- Even when `selector` returns `false` and no rebuild occurs, the widget keeps tracking the latest state. The next time `selector` returns `true` it will use the most recent state — not a stale snapshot.
 
 ---
 
@@ -246,10 +256,10 @@ class HomeView extends FoundryView<HomeViewModel, HomeState> {
 | Event | ViewModel method called |
 |---|---|
 | Widget added to tree | `onInit()` |
-| App foregrounded | `onResumed()` |
-| App backgrounded / paused | `onPaused()` |
+| App foregrounded (`resumed`) | `onResumed()` |
+| App backgrounded (`inactive`, `hidden`, `paused`) | `onPaused()` |
 | Widget removed from tree | `onDispose()` |
-| Unhandled error in state stream | `onError(error, stackTrace)` |
+| Unhandled error in state stream or during binding | `onError(error, stackTrace)` |
 
 You never call these methods yourself — override them in your `FoundryViewModel` subclass. Initialize the first state before `onInit()` if the ViewModel will be bound by `FoundryView`.
 
@@ -288,4 +298,31 @@ resolve it from the scope bound to that view:
 ```dart
 final HomeViewModel viewModel = FoundryScope.of(context).resolve<HomeViewModel>();
 ```
+
+### `FoundryState` accessors for custom views
+
+If you need finer control over the view lifecycle — for example to add custom bindings or hook into build logic — extend `FoundryState` directly rather than `FoundryView`:
+
+```dart
+class MyCustomView extends FoundryView<MyViewModel, MyState> {
+  const MyCustomView({super.key});
+
+  @override
+  State<MyCustomView> createState() => _MyCustomViewState();
+}
+
+class _MyCustomViewState
+    extends FoundryState<MyCustomView, MyViewModel, MyState> {
+  @override
+  Widget buildWithState(BuildContext context, MyState? oldState, MyState state) {
+    // isBound — true once the ViewModel has been resolved from the scope
+    // viewModel — the resolved TViewModel (throws if not yet bound)
+    // currentState — the latest state (throws if no state emitted yet)
+    // oldState — the previous state (null on first build)
+    return Text(state.toString());
+  }
+}
+```
+
+These accessors are particularly useful in subclasses that add animation controllers or other widget-tree state that must coordinate with the ViewModel lifecycle.
 

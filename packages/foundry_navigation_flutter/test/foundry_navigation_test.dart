@@ -50,7 +50,8 @@ class _TestRoute extends RouteConfig<void> {
 
   @override
   Route<void> build(BuildContext context) => PageRouteBuilder<void>(
-    pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+    pageBuilder: (context, animation, secondaryAnimation) =>
+        const SizedBox.shrink(),
   );
 
   @override

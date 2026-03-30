@@ -57,8 +57,31 @@ void main() {
 }
 
 String _readWorkspaceFile(String workspaceRelativePath) {
-  final Directory packageDir = Directory.current;
-  final String path =
-      '${packageDir.parent.parent.path.replaceAll('\\', '/')}/$workspaceRelativePath';
+  final Directory root = _resolveWorkspaceRoot();
+  final String normalized = workspaceRelativePath.replaceAll('\\', '/');
+  final String path = '${root.path.replaceAll('\\', '/')}/$normalized';
   return File(path).readAsStringSync();
+}
+
+Directory _resolveWorkspaceRoot() {
+  Directory current = Directory.current;
+
+  // Walk upward until we find the monorepo root containing these known folders.
+  while (true) {
+    final bool hasPackages = Directory('${current.path}/packages').existsSync();
+    final bool hasApps = Directory('${current.path}/apps').existsSync();
+    final bool hasPlans = Directory('${current.path}/plans').existsSync();
+
+    if (hasPackages && hasApps && hasPlans) {
+      return current;
+    }
+
+    final Directory parent = current.parent;
+    if (parent.path == current.path) {
+      throw StateError(
+        'Could not resolve workspace root from ${Directory.current.path}.',
+      );
+    }
+    current = parent;
+  }
 }

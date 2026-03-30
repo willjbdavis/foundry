@@ -12,6 +12,7 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 - [State and ViewModels](#state-and-viewmodels)
 - [Stateful Services](#stateful-services)
 - [Scoped Dependency Injection](#scoped-dependency-injection)
+- [Startup Initialization](#startup-initialization)
 - [`Container`](#container)
 - [Relationship To Other Packages](#relationship-to-other-packages)
 
@@ -21,7 +22,7 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 
 | Concept | Class | Role |
 |---|---|---|
-| Reactive state contract | `StateEmitter<S>` | Exposes the current `state` and a `states` stream of future emissions. |
+| Reactive state contract | `StateEmitter<S>` | Exposes a synchronous `state` getter (current value) and a broadcast `states` stream of future emissions. Use `state` for an instant snapshot; listen to `states` to react to changes. |
 | ViewModel base | `FoundryViewModel<S>` | Owns UI state and lifecycle hooks like `onInit`, `onPaused`, and `onDispose`. |
 | Stateful domain service | `StatefulService<S>` | Emits domain state and lets other services subscribe directly. |
 | View base | `FoundryView<TViewModel, TState>` | Low-level widget base with `buildWithState(...)`. Most Flutter apps use the higher-level wrapper from `foundry_flutter`. |
@@ -49,12 +50,15 @@ If you are building a Flutter UI with Foundry, you will usually also depend on `
 ### API
 
 - `FoundryLogger`: logger contract.
-- `LogLevel`: `debug`, `info`, `warning`, `error`.
+- `LogLevel`: `trace`, `debug`, `info`, `warning`, `error`.
 - `LogEvent`: structured event payload (`level`, `message`, optional `tag`, `error`, `stackTrace`).
 - `Foundry.configureLogger(...)`: register a logger object.
 - `Foundry.configureLoggerFn(...)`: register a callback directly.
 - `Foundry.log(...)`: emit an event.
 - `Foundry.clearLogger()`: reset logger state (primarily for tests).
+- `Foundry.configureDeepLinkFallbackPath(path)`: register a fallback route path used by generated deep-link resolvers when no registered view matches an incoming URI (for example `'/home'`).
+- `Foundry.clearDeepLinkFallbackPath()`: clear the fallback path.
+- `Foundry.deepLinkFallbackPath`: read the currently registered fallback path.
 
 ### Configure with a logger class
 
@@ -158,6 +162,10 @@ class HomeViewModel extends FoundryViewModel<HomeState> {
 You call `emitNewState(...)` from the subclass; the framework is responsible for invoking the lifecycle entrypoints.
 
 If the ViewModel will be bound by `foundry_flutter`, give it an initial state before `onInit()` runs because the Flutter binding reads `state` immediately after resolution.
+
+If you are using `FoundryViewModel` outside of `foundry_flutter` (for example in tests or in a non-Flutter context), call `disposeStream()` when the ViewModel is no longer needed to close the underlying broadcast stream controller.
+
+`FoundryView.buildWithState(context, oldState, newState)` receives `null` for `oldState` on the very first build. Guard accordingly if your build logic compares old and new state.
 
 ---
 
@@ -293,6 +301,8 @@ class HiveDatabaseService implements AsyncInitializable {
 
 Generated app containers can call this automatically through
 `initializeGeneratedGraph(scope)` after registration.
+
+`StatefulService` also implements `AsyncInitializable`; calling `initialize()` on a service delegates to its `invokeOnInit()` / `onInit()` lifecycle hook, so you can treat it the same as any other graph node during startup.
 
 Lifecycle boundary guidance:
 - Use `initialize()` for app-startup resource work (database open, cache warmup,

@@ -125,6 +125,13 @@ class HomeViewModel extends FoundryViewModel<HomeState>
 }
 ```
 
+### Parameters
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `lifetime` | `String` | `'scoped'` | DI registration lifetime used by the generated graph. Accepts `'singleton'`, `'scoped'`, or `'transient'`. `'scoped'` is the recommended default because ViewModels are typically view-scoped. |
+| `name` | `String?` | `null` | Override the identifier used in generated code. Useful when two ViewModels share a class name across different libraries. |
+
 One important architecture rule is enforced at build time: a `@FoundryViewModel` cannot depend directly on another `@FoundryViewModel`. Shared logic belongs in a `@FoundryService` instead.
 
 ---
@@ -132,6 +139,8 @@ One important architecture rule is enforced at build time: a `@FoundryViewModel`
 ## `@FoundryService`
 
 Annotate services, repositories, and domain services that should participate in Foundry's generated dependency graph.
+
+**Stateful service** — extends `StatefulService<T>` and emits reactive state:
 
 ```dart
 import 'package:foundry_annotations/foundry_annotations.dart';
@@ -151,13 +160,31 @@ class CartService extends StatefulService<CartState> {
 }
 ```
 
-Use `dependsOn: [...]` when a service has explicit dependencies on other services and you want the generator to validate those relationships.
+**Stateless service** — a plain Dart class with no state stream (the default when `stateful` is omitted):
+
+```dart
+@FoundryService()
+class AnalyticsService {
+  void track(String event) { /* ... */ }
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `stateful` | `bool` | `false` | Set to `true` when the class extends `StatefulService<T>`. |
+| `dependsOn` | `List<Type>?` | `null` | Declares explicit service-to-service dependencies. The generator validates these relationships and can wire them automatically in the generated DI graph. |
+| `lifetime` | `String` | `'singleton'` | DI registration lifetime. Accepts `'singleton'`, `'scoped'`, or `'transient'`. Most services should remain `'singleton'`. |
+| `name` | `String?` | `null` | Override the identifier used in generated code. |
 
 ---
 
 ## `@FoundryView`
 
 Use `@FoundryView()` on Flutter widgets to opt into generated route metadata, typed navigation helpers, and optional deep-link handling.
+
+**Simple route with deep-link:**
 
 ```dart
 import 'package:flutter/widgets.dart';
@@ -177,6 +204,29 @@ class HomeView extends FoundryView<HomeViewModel, HomeState> {
   }
 }
 ```
+
+**Route with typed arguments and a return result:**
+
+```dart
+@FoundryView(route: '/product', args: ProductArgs, result: bool)
+class ProductView extends FoundryView<ProductViewModel, ProductState> {
+  const ProductView({super.key});
+  // ...
+}
+```
+
+Setting `args` causes the generator to emit a typed push helper that requires a `ProductArgs` value at the call site, replacing untyped `Object?` argument maps. Setting `result` types the return value received after the route is popped.
+
+### Parameters
+
+| Parameter | Type | Default | Purpose |
+|---|---|---|---|
+| `route` | `String?` | `null` | Internal route path (e.g. `'/home'`). Used for in-app navigation. |
+| `args` | `Type?` | `null` | Type of arguments required to navigate to this view. Enables typed push helpers in generated code. |
+| `result` | `Type?` | `null` | Type returned when this route is popped. Enables typed pop helpers. |
+| `deepLink` | `String?` | `null` | External URI pattern for deep-link matching (e.g. `'/product/:id'`). Supports `:param` path segments and query parameters. |
+| `deepLinkArgsFactory` | `Function(Uri)?` | `null` | Custom factory to parse an incoming `Uri` into route arguments. Use this when the generated URI parser for `deepLink` is insufficient for your argument type. |
+| `name` | `String?` | `null` | Override the identifier used in generated code. |
 
 The generated output is consumed by `foundry_navigation_flutter` and your app's generated container/deep-link files.
 

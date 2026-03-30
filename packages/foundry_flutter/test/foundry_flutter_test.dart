@@ -261,4 +261,202 @@ void main() {
     expect(find.text('s:2'), findsOneWidget);
     expect(buildCount, initialBuilds + 1);
   });
+
+  testWidgets('FoundryScope.of throws StateError when no scope ancestor', (
+    final WidgetTester tester,
+  ) async {
+    late Object caughtError;
+
+    await tester.pumpWidget(
+      Builder(
+        builder: (final BuildContext context) {
+          try {
+            FoundryScope.of(context);
+          } catch (e) {
+            caughtError = e;
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+
+    expect(caughtError, isA<StateError>());
+  });
+
+  testWidgets(
+    'FoundryScope.childScope resolves parent registrations and disposes on removal',
+    (final WidgetTester tester) async {
+      final GlobalScope root = GlobalScope.create();
+      root.register<String>((_) => 'hello');
+
+      String? resolved;
+
+      await tester.pumpWidget(
+        FoundryScope(
+          scope: root,
+          child: FoundryScope.childScope(
+            child: Builder(
+              builder: (final BuildContext context) {
+                resolved = FoundryScope.of(context).resolve<String>();
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(resolved, 'hello');
+
+      // Remove the subtree — child scope should be disposed without error.
+      await tester.pumpWidget(
+        FoundryScope(scope: root, child: const SizedBox.shrink()),
+      );
+    },
+  );
+
+  testWidgets('FoundryBuilder rebinds when emitter is swapped', (
+    final WidgetTester tester,
+  ) async {
+    final TestViewModel first = TestViewModel(1);
+    final TestViewModel second = TestViewModel(99);
+
+    final ValueNotifier<TestViewModel> emitterNotifier =
+        ValueNotifier<TestViewModel>(first);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: ValueListenableBuilder<TestViewModel>(
+          valueListenable: emitterNotifier,
+          builder: (context, emitter, child) => FoundryBuilder<int>(
+            emitter: emitter,
+            builder: (ctx, oldState, state) => Text('v:$state'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('v:1'), findsOneWidget);
+
+    emitterNotifier.value = second;
+    await tester.pump();
+
+    expect(find.text('v:99'), findsOneWidget);
+  });
+
+  testWidgets('FoundryListener does not fire for initial state', (
+    final WidgetTester tester,
+  ) async {
+    final TestViewModel emitter = TestViewModel(5);
+    int listenerCalls = 0;
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: FoundryListener<int>(
+          emitter: emitter,
+          listener: (context, oldState, newState) => listenerCalls++,
+          child: const SizedBox.shrink(),
+        ),
+      ),
+    );
+
+    // After initial pump the listener must not have been called.
+    expect(listenerCalls, 0);
+
+    emitter.increment();
+    await tester.pump();
+
+    expect(listenerCalls, 1);
+  });
+
+  testWidgets(
+    'FoundryListener tracks oldState correctly across multiple emissions',
+    (final WidgetTester tester) async {
+      final TestViewModel emitter = TestViewModel(10);
+      final List<(int?, int)> calls = <(int?, int)>[];
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: FoundryListener<int>(
+            emitter: emitter,
+            listener: (_, old, next) => calls.add((old, next)),
+            child: const SizedBox.shrink(),
+          ),
+        ),
+      );
+
+      emitter.increment(); // 10 → 11
+      await tester.pump();
+      emitter.increment(); // 11 → 12
+      await tester.pump();
+
+      expect(calls, <(int, int)>[(10, 11), (11, 12)]);
+    },
+  );
+
+  testWidgets('FoundrySelectorBuilder tracks state between blocked rebuilds', (
+    final WidgetTester tester,
+  ) async {
+    // Selector only allows even numbers through.
+    // Emit 0(even) -> 1(blocked) -> 2(allowed).
+    // The builder should receive 2, not 0 (i.e. the blocked emission was tracked).
+    final TestViewModel emitter = TestViewModel(0);
+    final List<int> builtStates = <int>[];
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: FoundrySelectorBuilder<int>(
+          emitter: emitter,
+          selector: (_, next) => next.isEven,
+          builder: (_, state) {
+            builtStates.add(state);
+            return Text('s:$state');
+          },
+        ),
+      ),
+    );
+
+    emitter.increment(); // → 1, blocked
+    await tester.pump();
+    emitter.increment(); // → 2, allowed
+    await tester.pump();
+
+    // Should have rebuilt with 2, not 0 (tracked through blocked step).
+    expect(find.text('s:2'), findsOneWidget);
+    expect(builtStates.last, 2);
+  });
+
+  testWidgets('FoundrySelectorBuilder rebinds when emitter is swapped', (
+    final WidgetTester tester,
+  ) async {
+    final TestViewModel first = TestViewModel(3);
+    final TestViewModel second = TestViewModel(77);
+
+    final ValueNotifier<TestViewModel> emitterNotifier =
+        ValueNotifier<TestViewModel>(first);
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: ValueListenableBuilder<TestViewModel>(
+          valueListenable: emitterNotifier,
+          builder: (context, emitter, child) => FoundrySelectorBuilder<int>(
+            emitter: emitter,
+            selector: (oldState, newState) => true,
+            builder: (ctx, state) => Text('v:$state'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('v:3'), findsOneWidget);
+
+    emitterNotifier.value = second;
+    await tester.pump();
+
+    expect(find.text('v:77'), findsOneWidget);
+  });
 }

@@ -22,7 +22,6 @@ class FoundryListener<S> extends StatefulWidget {
 
 class _FoundryListenerState<S> extends State<FoundryListener<S>> {
   StreamSubscription<S>? _subscription;
-  S? _oldState;
   late S _currentState;
 
   @override
@@ -36,7 +35,6 @@ class _FoundryListenerState<S> extends State<FoundryListener<S>> {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.emitter, widget.emitter)) {
       _subscription?.cancel();
-      _oldState = null;
       _bind(widget.emitter);
     }
   }
@@ -59,10 +57,9 @@ class _FoundryListenerState<S> extends State<FoundryListener<S>> {
         return;
       }
 
-      final S? oldState = _oldState;
-      widget.listener(context, oldState, newState);
-      _oldState = _currentState;
+      final S prevState = _currentState;
       _currentState = newState;
+      widget.listener(context, prevState, newState);
     });
   }
 }
