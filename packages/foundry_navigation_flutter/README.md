@@ -17,6 +17,7 @@ This runtime now enforces a typed result contract at both compile time and runti
 
 - [Quick Start](#quick-start)
 - [Concepts](#concepts)
+- [GO, BEAMER, And Foundry Navigation](#go-beamer-and-foundry-navigation)
 - [Typed Results Mechanisms](#typed-results-mechanisms)
 - [Setup](#setup)
 - [Configure Navigation Once](#configure-navigation-once)
@@ -110,6 +111,127 @@ That's it. You now have typed navigation.
 | Typed args marker | `RouteArgs` | Base class for strongly typed route argument objects. |
 | Static entry point | `FoundryNavigator` | Global API used by generated and hand-written routes. |
 | Explicit-target service | `FoundryNavigation` | Instance-based navigation with five explicit target types. |
+
+---
+
+## GO, BEAMER, And Foundry Navigation
+
+Flutter navigation libraries differ less in *what they can do* and more in *what they make central in your app architecture*.
+
+### TL;DR
+
+* Use **GoRouter** when your app is fundamentally URL-driven.
+* Use **Beamer** when your app is modeled as nested page stacks.
+* Use **Foundry Navigation** when you want navigation to be **type-safe, contract-driven, and aligned with your view layer**.
+
+---
+
+## Comparison
+
+| Package                | Core Model                                 | Strengths                                                                                                               | Limitations                                                                                                             |
+| ---------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **GoRouter**           | Declarative route tree                     | Strong URL integration, redirects, web support                                                                          | Navigation becomes string-based and router-centric; weak typing for results; logic often moves into route configuration |
+| **Beamer**             | Router-driven page stacks (`BeamLocation`) | Flexible nested flows, explicit page composition                                                                        | Adds router-specific abstraction layer; still largely runtime/string-driven; limited type safety                        |
+| **Foundry Navigation** | Typed route contracts (`RouteConfig<T>`)   | Compile-time route contracts, inferred result types, runtime validation, generated helpers, explicit navigation targets | Requires adopting typed routes (and optionally codegen)                                                                 |
+
+---
+
+## What makes Foundry Navigation different
+
+### 1. Navigation is a contract, not a string
+
+```dart
+final User user = await FoundryNavigator.push(PickUserRoute(teamId: 'eng'));
+```
+
+* No string route names
+* No casting
+* No guessing return types
+
+The route itself defines:
+
+* inputs
+* outputs
+* construction
+
+---
+
+### 2. Typed results are first-class
+
+* `push` returns `Future<T>` inferred from the route
+* `pop` is validated against the active route contract
+* invalid values throw immediately
+
+```dart
+FoundryNavigator.pop('yes'); // throws StateError
+```
+
+This eliminates an entire class of runtime bugs common in imperative navigation.
+
+---
+
+### 3. Navigation stays out of your architecture
+
+Unlike router-centric approaches:
+
+* you don’t model your app around route trees
+* you don’t move logic into router configuration
+* you don’t depend on string paths in core logic
+
+Foundry Navigation is a **runtime layer**, not the place where your app is structured.
+
+---
+
+### 4. Generated routes eliminate drift
+
+When used with `@FoundryView`:
+
+* routes are generated from view declarations
+* args are strongly typed
+* deep links stay in sync
+* helpers are always correct
+
+No more:
+
+* mismatched route names
+* broken parameter mappings
+* stale navigation code
+
+---
+
+### 5. Explicit navigation targets
+
+Foundry Navigation introduces **explicit-target navigation**:
+
+* root navigator
+* nearest context
+* named channels (feature stacks)
+* specific navigator adapters
+* last-used target
+
+This makes complex flows (tabs, auth stacks, nested navigators) predictable and explicit instead of implicit.
+
+---
+
+## When Foundry Navigation is the better choice
+
+Choose Foundry Navigation when:
+
+* you want **type safety across navigation**
+* you prefer **contracts over strings**
+* your app uses (or benefits from) **code generation**
+* you need **multi-stack navigation (tabs, auth, flows)**
+* you want navigation to integrate cleanly with your **view layer**
+
+---
+
+## Summary
+
+GoRouter and Beamer are excellent when routing itself is the primary abstraction.
+
+Foundry Navigation is designed for a different goal:
+
+> **Make navigation feel like a natural extension of your Dart types and view definitions, not a separate system.**
 
 ---
 

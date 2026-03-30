@@ -2,6 +2,252 @@
 
 Foundry is a compile-time MVVM stack for Flutter. It combines immutable state, architecture validation, generated dependency wiring, Flutter view binding, and typed navigation into a small set of packages that work together.
 
+## Why Foundry?
+
+Most Flutter apps don’t fail because of UI — they fail because of **drift**:
+
+* navigation arguments don’t match the screen anymore
+* dependency wiring breaks silently at runtime
+* state logic spreads across widgets, services, and helpers
+* initialization order becomes fragile and unpredictable
+
+Over time, the app still works — but it becomes harder to reason about, harder to change, and easier to break.
+
+---
+
+**Foundry is designed to eliminate that drift.**
+
+It moves core app architecture from:
+
+* runtime wiring
+* string-based contracts
+* implicit lifecycles
+
+into:
+
+* **compile-time validated structure**
+* **generated dependency graphs**
+* **typed navigation contracts**
+* **explicit state and lifecycle boundaries**
+
+---
+
+### What that means in practice
+
+* If your dependency graph is invalid → **your build fails**
+* If navigation returns the wrong type → **it throws immediately**
+* If initialization order is wrong → **it’s fixed by generation**
+* If your architecture drifts → **the generator stops you**
+
+---
+
+### The goal
+
+> Make your app **predictable, scalable, and safe to change** —
+> without requiring constant discipline to keep it that way.
+
+---
+
+## What Foundry is (and isn’t)
+
+Foundry is not just:
+
+* a state management library
+* a DI container
+* a navigation wrapper
+
+It is a **compile-time MVVM architecture** for Flutter that unifies:
+
+* state
+* dependency injection
+* navigation
+* lifecycle
+
+into a single, consistent system.
+
+---
+
+## When Foundry makes sense
+
+Foundry shines when:
+
+* your app is growing in complexity
+* multiple developers are touching the same features
+* runtime bugs are coming from wiring, not logic
+* you want **guarantees instead of conventions**
+
+---
+
+## One-line summary
+
+> **Foundry turns common runtime architecture bugs into compile-time errors.**
+
+
+## State Management & DI Comparison
+
+Flutter has many excellent options for state management and dependency injection. They differ less in capability and more in **what they make central in your architecture**.
+
+### TL;DR
+
+* Use **Provider** for simple apps and minimal structure.
+* Use **BLoC** when you want strict event → state pipelines.
+* Use **Riverpod** for flexible, reactive dependency graphs.
+* Use **GetIt** for lightweight service location.
+* Use **Foundry** when you want **compile-time validated architecture, generated DI, and MVVM alignment across your entire app**.
+
+---
+
+## Comparison
+
+| Solution     | Core Model                              | Strengths                                                                                                               | Limitations                                                               |
+| ------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Provider** | InheritedWidget-based state propagation | Simple, built-in, easy to start                                                                                         | Minimal structure, no compile-time guarantees, manual wiring              |
+| **BLoC**     | Event → State streams                   | Strong separation, predictable flows                                                                                    | Boilerplate-heavy, runtime wiring, no DI graph validation                 |
+| **Riverpod** | Reactive provider graph                 | Flexible, testable, compile-time safety for providers                                                                   | App structure still largely manual, navigation & architecture not unified |
+| **GetIt**    | Service locator                         | Extremely simple DI, no context required                                                                                | No graph validation, no lifecycle enforcement, easy to misuse             |
+| **Foundry**  | Compile-time MVVM + generated DI graph  | Architecture validation, generated wiring, scoped lifetimes, async-safe initialization, unified navigation + state + DI | Requires adopting structured patterns and code generation                 |
+
+---
+
+## What makes Foundry different
+
+### 1. Architecture is validated at compile time
+
+Foundry is not just state management or DI — it enforces **MVVM boundaries** during code generation.
+
+* Invalid dependency graphs fail at build time
+* Circular dependencies are caught early
+* View ↔ ViewModel ↔ Service relationships stay consistent
+
+> This eliminates an entire class of runtime architecture bugs.
+
+---
+
+### 2. Dependency injection is generated, not wired manually
+
+In most solutions:
+
+* you register dependencies manually
+* ordering issues are your responsibility
+* async initialization is ad hoc
+
+In Foundry:
+
+* constructor signatures define the graph
+* dependency order is generated automatically
+* async initialization runs in **topological order**
+
+```dart
+await initializeGeneratedGraph(scope);
+```
+
+No:
+
+* manual registration ordering
+* hidden runtime dependency issues
+* startup race conditions
+
+---
+
+### 3. State is immutable and structured by default
+
+Foundry promotes:
+
+* immutable state
+* explicit state transitions
+* generated helpers for state updates
+
+```dart
+emitNewState(state.copyWith(isLoading: true));
+```
+
+This keeps state predictable without requiring:
+
+* streams everywhere (BLoC)
+* manual notifier patterns (Provider/Riverpod)
+
+---
+
+### 4. Scoped lifetimes are built in
+
+Foundry models lifetimes explicitly:
+
+* `singleton` → app-wide
+* `scoped` → per-view
+* `transient` → new instance per resolve
+
+Each `FoundryView` automatically gets:
+
+* its own child scope
+* its own ViewModel instance
+* automatic disposal
+
+No manual lifecycle management required.
+
+---
+
+### 5. Navigation, DI, and state are unified
+
+Most Flutter stacks treat these as separate concerns:
+
+* navigation (GoRouter / Navigator)
+* state (Provider / Riverpod / BLoC)
+* DI (GetIt / manual)
+
+Foundry unifies them:
+
+* `@FoundryView` defines:
+
+  * route
+  * args
+  * result type
+* ViewModel is resolved automatically
+* navigation is **typed and validated**
+
+This removes drift between:
+
+* routes
+* state
+* dependencies
+
+---
+
+### 6. Less runtime guessing, more compile-time guarantees
+
+Common issues in other approaches:
+
+* missing providers at runtime
+* incorrect DI wiring
+* invalid navigation arguments
+* lifecycle bugs
+
+Foundry shifts these to:
+
+> **compile-time failures instead of runtime surprises**
+
+---
+
+## When Foundry is the better choice
+
+Choose Foundry when:
+
+* your app is growing beyond simple state management
+* you want **strong architectural consistency**
+* you value **compile-time safety over runtime flexibility**
+* you want to eliminate **manual DI wiring**
+* you prefer **generated, contract-driven systems**
+
+---
+
+## Summary
+
+Provider, BLoC, Riverpod, and GetIt are excellent tools — but they focus on *individual concerns*.
+
+Foundry is designed for a different goal:
+
+> **Provide a cohesive, compile-time enforced architecture where state, DI, and navigation all follow the same contract-driven model.**
+
+
 ## Project Docs
 
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
