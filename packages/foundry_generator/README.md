@@ -22,6 +22,17 @@ Dependency ordering is constructor-first:
 - registration and singleton initialization are emitted in topological order so
   dependencies run before dependents
 
+Part of the Foundry framework - a compile-time MVVM architecture for Flutter.
+
+- [foundry_core](https://pub.dev/packages/foundry_core) - DI, scopes, lifecycles
+- [foundry_flutter](https://pub.dev/packages/foundry_flutter) - View + ViewModel binding
+- [foundry_navigation_flutter](https://pub.dev/packages/foundry_navigation_flutter) - Typed navigation runtime
+- [foundry_annotations](https://pub.dev/packages/foundry_annotations) - Annotations for code generation
+- [foundry_generator](https://pub.dev/packages/foundry_generator) - Code generation and validation
+
+👉 See the full framework:
+**START HERE**
+https://github.com/willjbdavis/foundry
 ## Table of Contents
 
 - [Concepts](#concepts)
@@ -434,3 +445,11 @@ If you want more explicit setup, you can also create a `GlobalScope` or child `S
 | Circular explicit-only `dependsOn` graph | Build error |
 
 For the runtime pieces these generated files plug into, see [`foundry_core`](../foundry_core), [`foundry_flutter`](../foundry_flutter), and [`foundry_navigation_flutter`](../foundry_navigation_flutter).
+
+## Where To Read Next
+
+- Root README: https://github.com/willjbdavis/foundry/blob/main/README.md
+- foundry_annotations README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_annotations/README.md
+- foundry_core README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_core/README.md
+- foundry_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_flutter/README.md
+- foundry_navigation_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_navigation_flutter/README.md

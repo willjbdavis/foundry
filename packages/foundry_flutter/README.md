@@ -4,6 +4,17 @@ Flutter integration layer for the [Foundry MVVM framework](../foundry_core). Pro
 
 This package re-exports everything from `foundry_core` and adds Flutter-specific widgets on top. In most Flutter apps you only need to import `foundry_flutter` — not `foundry_core` directly.
 
+Part of the Foundry framework - a compile-time MVVM architecture for Flutter.
+
+- [foundry_core](https://pub.dev/packages/foundry_core) - DI, scopes, lifecycles
+- [foundry_flutter](https://pub.dev/packages/foundry_flutter) - View + ViewModel binding
+- [foundry_navigation_flutter](https://pub.dev/packages/foundry_navigation_flutter) - Typed navigation runtime
+- [foundry_annotations](https://pub.dev/packages/foundry_annotations) - Annotations for code generation
+- [foundry_generator](https://pub.dev/packages/foundry_generator) - Code generation and validation
+
+👉 See the full framework:
+**START HERE**
+https://github.com/willjbdavis/foundry
 ## Table of Contents
 
 - [Concepts](#concepts)
@@ -326,3 +337,10 @@ class _MyCustomViewState
 
 These accessors are particularly useful in subclasses that add animation controllers or other widget-tree state that must coordinate with the ViewModel lifecycle.
 
+## Where To Read Next
+
+- Root README: https://github.com/willjbdavis/foundry/blob/main/README.md
+- foundry_annotations README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_annotations/README.md
+- foundry_core README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_core/README.md
+- foundry_generator README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_generator/README.md
+- foundry_navigation_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_navigation_flutter/README.md

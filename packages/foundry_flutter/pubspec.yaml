@@ -1,9 +1,10 @@
 name: foundry_flutter
 description: "Flutter integration layer for Foundry MVVM views, scope wiring, and state widgets."
 resolution: workspace
-publish_to: none
-version: 0.0.1
-homepage: https://github.com/foundry-framework/foundry
+version: 1.0.0
+homepage: https://github.com/willjbdavis/foundry
+repository: https://github.com/willjbdavis/foundry
+issue_tracker: https://github.com/willjbdavis/foundry/issues
 
 environment:
   sdk: ^3.11.1
@@ -12,8 +13,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  foundry_core:
-    path: ../foundry_core
+  foundry_core: ^1.0.0
 
 dev_dependencies:
   flutter_test:

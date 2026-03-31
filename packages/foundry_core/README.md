@@ -4,6 +4,17 @@ Core runtime primitives for the [Foundry MVVM framework](../foundry_flutter). Th
 
 `foundry_core` is the package that defines how Foundry behaves at runtime. `foundry_annotations` describes your architecture at compile time, `foundry_generator` removes boilerplate, and `foundry_flutter` adds the higher-level Flutter widget integration most apps use.
 
+Part of the Foundry framework - a compile-time MVVM architecture for Flutter.
+
+- [foundry_core](https://pub.dev/packages/foundry_core) - DI, scopes, lifecycles
+- [foundry_flutter](https://pub.dev/packages/foundry_flutter) - View + ViewModel binding
+- [foundry_navigation_flutter](https://pub.dev/packages/foundry_navigation_flutter) - Typed navigation runtime
+- [foundry_annotations](https://pub.dev/packages/foundry_annotations) - Annotations for code generation
+- [foundry_generator](https://pub.dev/packages/foundry_generator) - Code generation and validation
+
+👉 See the full framework:
+**START HERE**
+https://github.com/willjbdavis/foundry
 ## Table of Contents
 
 - [Concepts](#concepts)
@@ -345,3 +356,11 @@ For larger apps, working directly with `GlobalScope` and generated registration 
 - `foundry_generator`: build-time generation of DI graph wiring, route helpers, and helper mixins.
 - `foundry_flutter`: `FoundryScope`, `FoundryView`, and state-aware widgets for Flutter UI trees.
 - `foundry_navigation_flutter`: typed navigation runtime used by generated `@FoundryView` routes.
+
+## Where To Read Next
+
+- Root README: https://github.com/willjbdavis/foundry/blob/main/README.md
+- foundry_annotations README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_annotations/README.md
+- foundry_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_flutter/README.md
+- foundry_generator README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_generator/README.md
+- foundry_navigation_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_navigation_flutter/README.md

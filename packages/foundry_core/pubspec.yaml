@@ -1,8 +1,10 @@
 name: foundry_core
 description: "Core interfaces, base classes, and scoped DI container for Foundry MVVM."
 resolution: workspace
-version: 0.0.1
-homepage: https://github.com/foundry-framework/foundry
+version: 1.0.0
+homepage: https://github.com/willjbdavis/foundry
+repository: https://github.com/willjbdavis/foundry
+issue_tracker: https://github.com/willjbdavis/foundry/issues
 
 environment:
   sdk: ^3.11.1

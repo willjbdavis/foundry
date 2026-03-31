@@ -4,6 +4,17 @@ Compile-time annotations for the [Foundry MVVM framework](../foundry_core). This
 
 `foundry_annotations` is intentionally small: it does not provide runtime behavior by itself. Instead, it gives you the metadata that powers code generation across `foundry_core`, `foundry_flutter`, and `foundry_navigation_flutter`.
 
+Part of the Foundry framework - a compile-time MVVM architecture for Flutter.
+
+- [foundry_core](https://pub.dev/packages/foundry_core) - DI, scopes, lifecycles
+- [foundry_flutter](https://pub.dev/packages/foundry_flutter) - View + ViewModel binding
+- [foundry_navigation_flutter](https://pub.dev/packages/foundry_navigation_flutter) - Typed navigation runtime
+- [foundry_annotations](https://pub.dev/packages/foundry_annotations) - Annotations for code generation
+- [foundry_generator](https://pub.dev/packages/foundry_generator) - Code generation and validation
+
+👉 See the full framework:
+**START HERE**
+https://github.com/willjbdavis/foundry
 ## Table of Contents
 
 - [Concepts](#concepts)
@@ -243,3 +254,11 @@ In a Foundry app, these packages work together in sequence:
 3. Use the generated helpers and registration graph with `foundry_core`, `foundry_flutter`, and `foundry_navigation_flutter`.
 
 If you want the generated output itself explained in detail, see [`foundry_generator`](../foundry_generator).
+
+## Where To Read Next
+
+- Root README: https://github.com/willjbdavis/foundry/blob/main/README.md
+- foundry_core README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_core/README.md
+- foundry_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_flutter/README.md
+- foundry_generator README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_generator/README.md
+- foundry_navigation_flutter README: https://github.com/willjbdavis/foundry/blob/main/packages/foundry_navigation_flutter/README.md

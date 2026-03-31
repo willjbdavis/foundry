@@ -1,9 +1,10 @@
 name: foundry_generator
 description: "Compile-time code generator for the Foundry MVVM framework."
 resolution: workspace
-publish_to: none
-version: 0.0.1
-homepage:
+version: 1.0.0
+homepage: https://github.com/willjbdavis/foundry
+repository: https://github.com/willjbdavis/foundry
+issue_tracker: https://github.com/willjbdavis/foundry/issues
 
 environment:
   sdk: ^3.11.1
@@ -12,10 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  foundry_annotations:
-    path: ../foundry_annotations
-  foundry_core:
-    path: ../foundry_core
+  foundry_annotations: ^1.0.0
+  foundry_core: ^1.0.0
   build: ^2.4.0
   build_runner: ^2.4.0
   analyzer: ^5.13.0

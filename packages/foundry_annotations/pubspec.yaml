@@ -2,7 +2,9 @@ name: foundry_annotations
 description: "Compile-time annotations for the Foundry MVVM framework."
 resolution: workspace
 version: 1.0.0
-homepage: https://github.com/foundry-framework/foundry
+homepage: https://github.com/willjbdavis/foundry
+repository: https://github.com/willjbdavis/foundry
+issue_tracker: https://github.com/willjbdavis/foundry/issues
 
 environment:
   sdk: '>=3.11.1 <4.0.0'
