@@ -201,6 +201,10 @@ class GlobalScope implements Scope {
   }
 }
 
+/// Internal registration record used by [GlobalScope].
+///
+/// Stores the factory and lifetime strategy, and owns per-lifetime instance
+/// caching used by [resolve].
 class _Registration {
   _Registration(this._factory, this._lifetime);
 

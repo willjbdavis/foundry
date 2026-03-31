@@ -66,9 +66,13 @@ abstract class StatefulService<S>
     }
   }
 
-  /// Subscribe to state changes from this service.
+  /// Registers [listener] to receive future state emissions.
   ///
-  /// Call in dependent service's onInit().
+  /// The listener is invoked whenever [emitNewState] publishes a new value.
+  /// Existing state is not replayed automatically; subscribe before relying on
+  /// updates.
+  ///
+  /// Duplicate registrations of the same function are ignored.
   void subscribe(void Function(S state) listener) {
     if (!_listeners.contains(listener)) {
       _listeners.add(listener);
@@ -82,9 +86,10 @@ abstract class StatefulService<S>
     }
   }
 
-  /// Unsubscribe listener.
+  /// Removes a previously registered [listener].
   ///
-  /// Call in dependent service's onDispose().
+  /// Passing null is a no-op, which allows safe cleanup paths where the
+  /// callback may be conditionally assigned.
   void unsubscribe(void Function(S state)? listener) {
     if (listener != null) {
       _listeners.remove(listener);

@@ -7,7 +7,8 @@ import 'package:foundry_annotations/foundry_annotations.dart';
 ///
 /// Emits a mixin `_$${ClassName}Mixin` analogous to [ViewStateGenerator],
 /// plus detects `persistent: true` for the container generator.
-class ServiceStateGenerator extends GeneratorForAnnotation<FoundryServiceState> {
+class ServiceStateGenerator
+    extends GeneratorForAnnotation<FoundryServiceState> {
   @override
   Future<String> generateForAnnotatedElement(
     Element element,

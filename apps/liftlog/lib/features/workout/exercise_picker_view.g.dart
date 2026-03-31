@@ -25,13 +25,16 @@ class ExercisePickerViewRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
-        builder: (_) => ExercisePickerView(args: args));
+      builder: (_) => ExercisePickerView(args: args),
+    );
   }
 
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => ExercisePickerView(args: args));
+      settings: settings,
+      builder: (_) => ExercisePickerView(args: args),
+    );
   }
 }
 
@@ -102,8 +105,8 @@ mixin _$ExercisePickerStateMixin {
           : searchQuery as String,
       selectedExerciseId:
           identical(selectedExerciseId, _$ExercisePickerStateSentinel)
-              ? self.selectedExerciseId
-              : selectedExerciseId as String?,
+          ? self.selectedExerciseId
+          : selectedExerciseId as String?,
       exercises: identical(exercises, _$ExercisePickerStateSentinel)
           ? self.exercises
           : exercises as List<ExerciseDefinition>,
@@ -129,8 +132,13 @@ mixin _$ExercisePickerStateMixin {
   @override
   int get hashCode {
     final ExercisePickerState self = this as ExercisePickerState;
-    return Object.hash(self.isLoading, self.searchQuery,
-        self.selectedExerciseId, self.exercises, self.error);
+    return Object.hash(
+      self.isLoading,
+      self.searchQuery,
+      self.selectedExerciseId,
+      self.exercises,
+      self.error,
+    );
   }
 
   @override

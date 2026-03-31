@@ -187,6 +187,10 @@ class ChildScope implements Scope {
   }
 }
 
+/// Internal registration record used by [ChildScope].
+///
+/// Mirrors global registration behavior while keeping cache ownership local to
+/// the current child scope hierarchy.
 class _Registration {
   _Registration(this._factory, this._lifetime);
 

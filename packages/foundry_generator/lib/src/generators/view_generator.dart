@@ -11,6 +11,9 @@ import 'generator_utils.dart';
 /// - Generates a typed `${ClassName}Route extends RouteConfig<T>`
 /// - Generates a `BuildContext` push extension
 /// - Generates static `matchDeepLink(Uri)` if deepLink is set
+///
+/// The emitted route class preserves declared args/result contracts and
+/// performs deep-link argument coercion for supported primitive types.
 class ViewGenerator extends GeneratorForAnnotation<FoundryView> {
   @override
   Future<String> generateForAnnotatedElement(

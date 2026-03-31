@@ -39,9 +39,13 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   @override
   Stream<S> get states => _streamController.stream;
 
-  /// Emits a new state to observers.
+  /// Emits [newState] as the current state and notifies listeners.
   ///
-  /// This method should be called by subclasses to emit new state values.
+  /// Subclasses call this to publish immutable state updates. The new value is
+  /// immediately available via [state] and then forwarded through [states].
+  ///
+  /// This should usually be called from lifecycle hooks or user-intent
+  /// handlers, not from [build] methods.
   @protected
   void emitNewState(S newState) {
     _state = newState;
@@ -84,7 +88,10 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
   @protected
   Future<void> onError(Object error, StackTrace stackTrace) async {}
 
-  /// Framework-facing lifecycle entrypoint.
+  /// Invokes [onInit] from framework integration code.
+  ///
+  /// Foundry calls this during initial binding. Subclasses should override
+  /// [onInit] rather than this method.
   Future<void> invokeOnInit() {
     Foundry.log(
       LogEvent(
@@ -97,7 +104,9 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
     return onInit();
   }
 
-  /// Framework-facing lifecycle entrypoint.
+  /// Invokes [onResumed] from framework integration code.
+  ///
+  /// Foundry calls this when the host resumes to foreground execution.
   Future<void> invokeOnResumed() {
     Foundry.log(
       LogEvent(
@@ -110,7 +119,9 @@ abstract class FoundryViewModel<S> implements StateEmitter<S> {
     return onResumed();
   }
 
-  /// Framework-facing lifecycle entrypoint.
+  /// Invokes [onPaused] from framework integration code.
+  ///
+  /// Foundry calls this when the host transitions to background execution.
   Future<void> invokeOnPaused() {
     Foundry.log(
       LogEvent(

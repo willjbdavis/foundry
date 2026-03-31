@@ -28,7 +28,9 @@ class WorkoutHistoryViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const WorkoutHistoryView());
+      settings: settings,
+      builder: (_) => const WorkoutHistoryView(),
+    );
   }
 
   /// Returns a [WorkoutHistoryView Route] if [uri] matches the deep link pattern,
@@ -141,7 +143,11 @@ mixin _$WorkoutHistoryStateMixin {
   int get hashCode {
     final WorkoutHistoryState self = this as WorkoutHistoryState;
     return Object.hash(
-        self.isLoading, self.searchQuery, self.workouts, self.error);
+      self.isLoading,
+      self.searchQuery,
+      self.workouts,
+      self.error,
+    );
   }
 
   @override

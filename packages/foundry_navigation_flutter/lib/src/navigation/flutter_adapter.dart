@@ -5,6 +5,9 @@ import 'adapter.dart';
 import 'route_config.dart';
 
 /// Navigator adapter implementation for Flutter's Navigator API.
+///
+/// Tracks per-navigator route result contracts so pop operations can validate
+/// returned values against the pushed route type expectations.
 class FlutterNavigatorAdapter implements NavigatorAdapter {
   /// Creates an adapter backed by callbacks that resolve navigator/context.
   FlutterNavigatorAdapter({
@@ -73,13 +76,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final BuildContext context = _contextResolver();
     final RouteResultContract contract = config.resultContract;
-          Foundry.log(
-        LogEvent(
-          level: LogLevel.debug,
-          tag: 'nav.adapter',
-          message: 'push route ${config.runtimeType}.',
-        ),
-      );
+    Foundry.log(
+      LogEvent(
+        level: LogLevel.debug,
+        tag: 'nav.adapter',
+        message: 'push route ${config.runtimeType}.',
+      ),
+    );
 
     _stackForNavigator(navigator).add(contract);
     return navigator.push<T>(config.build(context)).then((T? value) {
@@ -101,13 +104,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
           'but received $actualType.',
         );
       }
-              Foundry.log(
-          const LogEvent(
-            level: LogLevel.debug,
-            tag: 'nav.adapter',
-            message: 'push completed with valid result.',
-          ),
-        );
+      Foundry.log(
+        const LogEvent(
+          level: LogLevel.debug,
+          tag: 'nav.adapter',
+          message: 'push completed with valid result.',
+        ),
+      );
 
       return value as T;
     });
@@ -118,13 +121,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final List<RouteResultContract> stack = _stackForNavigator(navigator);
     final RouteResultContract? contract = stack.isNotEmpty ? stack.last : null;
-          Foundry.log(
-        const LogEvent(
-          level: LogLevel.debug,
-          tag: 'nav.adapter',
-          message: 'pop called.',
-        ),
-      );
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'nav.adapter',
+        message: 'pop called.',
+      ),
+    );
 
     _validateResult(contract, result, operation: 'pop');
     navigator.pop(result);
@@ -138,13 +141,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
     final NavigatorState navigator = _navigatorResolver();
     final List<RouteResultContract> stack = _stackForNavigator(navigator);
     final RouteResultContract? contract = stack.isNotEmpty ? stack.last : null;
-          Foundry.log(
-        const LogEvent(
-          level: LogLevel.debug,
-          tag: 'nav.adapter',
-          message: 'maybePop called.',
-        ),
-      );
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'nav.adapter',
+        message: 'maybePop called.',
+      ),
+    );
 
     _validateResult(contract, result, operation: 'maybePop');
     final bool popped = await navigator.maybePop(result);
@@ -156,13 +159,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
 
   @override
   bool canPop() {
-          Foundry.log(
-        const LogEvent(
-          level: LogLevel.debug,
-          tag: 'nav.adapter',
-          message: 'canPop queried.',
-        ),
-      );
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.debug,
+        tag: 'nav.adapter',
+        message: 'canPop queried.',
+      ),
+    );
 
     return _navigatorResolver().canPop();
   }
@@ -170,13 +173,13 @@ class FlutterNavigatorAdapter implements NavigatorAdapter {
   @override
   void popToRoot() {
     final NavigatorState navigator = _navigatorResolver();
-          Foundry.log(
-        const LogEvent(
-          level: LogLevel.info,
-          tag: 'nav.adapter',
-          message: 'popToRoot called.',
-        ),
-      );
+    Foundry.log(
+      const LogEvent(
+        level: LogLevel.info,
+        tag: 'nav.adapter',
+        message: 'popToRoot called.',
+      ),
+    );
 
     _stackForNavigator(navigator).clear();
     navigator.popUntil((route) => route.isFirst);

@@ -36,14 +36,46 @@ import 'package:lift_log/features/workout/workout_summary_view.dart';
 /// Generated deep-link resolver and matcher tree.
 abstract final class GeneratedDeepLinkResolver {
   static final List<_DeepLinkMatcherEntry> _entries = <_DeepLinkMatcherEntry>[
-    _DeepLinkMatcherEntry(pattern: '/about', label: 'AboutViewRoute', matcher: AboutViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/', label: 'AppShellViewRoute', matcher: AppShellViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/exercises/:exerciseId/edit', label: 'ExerciseEditorViewRoute', matcher: ExerciseEditorViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/exercises', label: 'ExercisesDatabaseViewRoute', matcher: ExercisesDatabaseViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/home', label: 'HomeViewRoute', matcher: HomeViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/settings', label: 'SettingsViewRoute', matcher: SettingsViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/history/:workoutId', label: 'WorkoutDetailViewRoute', matcher: WorkoutDetailViewRoute.matchDeepLink),
-    _DeepLinkMatcherEntry(pattern: '/history', label: 'WorkoutHistoryViewRoute', matcher: WorkoutHistoryViewRoute.matchDeepLink),
+    _DeepLinkMatcherEntry(
+      pattern: '/about',
+      label: 'AboutViewRoute',
+      matcher: AboutViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/',
+      label: 'AppShellViewRoute',
+      matcher: AppShellViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/exercises/:exerciseId/edit',
+      label: 'ExerciseEditorViewRoute',
+      matcher: ExerciseEditorViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/exercises',
+      label: 'ExercisesDatabaseViewRoute',
+      matcher: ExercisesDatabaseViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/home',
+      label: 'HomeViewRoute',
+      matcher: HomeViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/settings',
+      label: 'SettingsViewRoute',
+      matcher: SettingsViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/history/:workoutId',
+      label: 'WorkoutDetailViewRoute',
+      matcher: WorkoutDetailViewRoute.matchDeepLink,
+    ),
+    _DeepLinkMatcherEntry(
+      pattern: '/history',
+      label: 'WorkoutHistoryViewRoute',
+      matcher: WorkoutHistoryViewRoute.matchDeepLink,
+    ),
   ];
 
   static final _DeepLinkTreeNode _root = _buildTree(_entries);
@@ -67,9 +99,7 @@ abstract final class GeneratedDeepLinkResolver {
     return out.toString();
   }
 
-  static _DeepLinkTreeNode _buildTree(
-    List<_DeepLinkMatcherEntry> entries,
-  ) {
+  static _DeepLinkTreeNode _buildTree(List<_DeepLinkMatcherEntry> entries) {
     final _DeepLinkTreeNode root = _DeepLinkTreeNode();
     for (int matcherIndex = 0; matcherIndex < entries.length; matcherIndex++) {
       final _DeepLinkMatcherEntry entry = entries[matcherIndex];

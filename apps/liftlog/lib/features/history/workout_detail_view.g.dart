@@ -25,13 +25,16 @@ class WorkoutDetailViewRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
-        builder: (_) => WorkoutDetailView(args: args));
+      builder: (_) => WorkoutDetailView(args: args),
+    );
   }
 
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => WorkoutDetailView(args: args));
+      settings: settings,
+      builder: (_) => WorkoutDetailView(args: args),
+    );
   }
 
   /// Returns a [WorkoutDetailView Route] if [uri] matches the deep link pattern,
@@ -154,7 +157,11 @@ mixin _$WorkoutDetailStateMixin {
   int get hashCode {
     final WorkoutDetailState self = this as WorkoutDetailState;
     return Object.hash(
-        self.isLoading, self.workoutId, self.workout, self.error);
+      self.isLoading,
+      self.workoutId,
+      self.workout,
+      self.error,
+    );
   }
 
   @override

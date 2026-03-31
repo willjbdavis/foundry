@@ -28,7 +28,9 @@ class HomeViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const HomeView());
+      settings: settings,
+      builder: (_) => const HomeView(),
+    );
   }
 
   /// Returns a [HomeView Route] if [uri] matches the deep link pattern,
@@ -122,8 +124,9 @@ mixin _$HomeStateMixin {
       recentWorkouts: identical(recentWorkouts, _$HomeStateSentinel)
           ? self.recentWorkouts
           : recentWorkouts as List<Workout>,
-      error:
-          identical(error, _$HomeStateSentinel) ? self.error : error as String?,
+      error: identical(error, _$HomeStateSentinel)
+          ? self.error
+          : error as String?,
     );
   }
 
@@ -143,8 +146,13 @@ mixin _$HomeStateMixin {
   @override
   int get hashCode {
     final HomeState self = this as HomeState;
-    return Object.hash(self.isLoading, self.hasActiveWorkout,
-        self.activeWorkoutTitle, self.recentWorkouts, self.error);
+    return Object.hash(
+      self.isLoading,
+      self.hasActiveWorkout,
+      self.activeWorkoutTitle,
+      self.recentWorkouts,
+      self.error,
+    );
   }
 
   @override

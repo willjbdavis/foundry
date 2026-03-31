@@ -25,13 +25,16 @@ class WorkoutSummaryViewRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
-        builder: (_) => WorkoutSummaryView(args: args));
+      builder: (_) => WorkoutSummaryView(args: args),
+    );
   }
 
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => WorkoutSummaryView(args: args));
+      settings: settings,
+      builder: (_) => WorkoutSummaryView(args: args),
+    );
   }
 }
 
@@ -138,8 +141,15 @@ mixin _$WorkoutSummaryStateMixin {
   @override
   int get hashCode {
     final WorkoutSummaryState self = this as WorkoutSummaryState;
-    return Object.hash(self.isLoading, self.isSaving, self.totalExercises,
-        self.totalSets, self.error, self.title, self.draftId);
+    return Object.hash(
+      self.isLoading,
+      self.isSaving,
+      self.totalExercises,
+      self.totalSets,
+      self.error,
+      self.title,
+      self.draftId,
+    );
   }
 
   @override

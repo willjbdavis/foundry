@@ -23,8 +23,12 @@ abstract class FoundryState<
   TState? _currentState;
   bool _hasCurrentState = false;
 
+  /// Whether this state object is currently bound to a resolved ViewModel.
   bool get isBound => _viewModel != null;
 
+  /// Currently bound view model instance.
+  ///
+  /// Throws [StateError] before initial binding completes.
   TViewModel get viewModel {
     final TViewModel? vm = _viewModel;
     if (vm == null) {
@@ -33,8 +37,14 @@ abstract class FoundryState<
     return vm;
   }
 
+  /// Previously rendered state value.
+  ///
+  /// Returns null until at least one update has been received after binding.
   TState? get oldState => _oldState;
 
+  /// Most recent state value received from the bound view model.
+  ///
+  /// Throws [StateError] until initial state is available.
   TState get currentState {
     if (!_hasCurrentState) {
       throw StateError('Current state is not available yet.');

@@ -25,14 +25,16 @@ class WorkoutSessionSetupViewRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
-        builder: (_) => WorkoutSessionSetupView(args: args));
+      builder: (_) => WorkoutSessionSetupView(args: args),
+    );
   }
 
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings,
-        builder: (_) => WorkoutSessionSetupView(args: args));
+      settings: settings,
+      builder: (_) => WorkoutSessionSetupView(args: args),
+    );
   }
 }
 
@@ -134,8 +136,14 @@ mixin _$WorkoutSessionSetupStateMixin {
   @override
   int get hashCode {
     final WorkoutSessionSetupState self = this as WorkoutSessionSetupState;
-    return Object.hash(self.isLoading, self.isSaving, self.title, self.date,
-        self.notes, self.error);
+    return Object.hash(
+      self.isLoading,
+      self.isSaving,
+      self.title,
+      self.date,
+      self.notes,
+      self.error,
+    );
   }
 
   @override

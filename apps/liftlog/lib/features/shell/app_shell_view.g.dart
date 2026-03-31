@@ -28,7 +28,9 @@ class AppShellViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const AppShellView());
+      settings: settings,
+      builder: (_) => const AppShellView(),
+    );
   }
 
   /// Returns a [AppShellView Route] if [uri] matches the deep link pattern,
@@ -105,8 +107,8 @@ mixin _$AppShellStateMixin {
           : hasActiveWorkout as bool,
       historyRefreshVersion:
           identical(historyRefreshVersion, _$AppShellStateSentinel)
-              ? self.historyRefreshVersion
-              : historyRefreshVersion as int,
+          ? self.historyRefreshVersion
+          : historyRefreshVersion as int,
     );
   }
 
@@ -124,8 +126,11 @@ mixin _$AppShellStateMixin {
   @override
   int get hashCode {
     final AppShellState self = this as AppShellState;
-    return Object.hash(self.selectedTabIndex, self.hasActiveWorkout,
-        self.historyRefreshVersion);
+    return Object.hash(
+      self.selectedTabIndex,
+      self.hasActiveWorkout,
+      self.historyRefreshVersion,
+    );
   }
 
   @override

@@ -43,8 +43,8 @@ mixin _$RestTimerStateMixin {
           : isRunning as bool,
       showRestFinishedBanner:
           identical(showRestFinishedBanner, _$RestTimerStateSentinel)
-              ? self.showRestFinishedBanner
-              : showRestFinishedBanner as bool,
+          ? self.showRestFinishedBanner
+          : showRestFinishedBanner as bool,
     );
   }
 
@@ -63,8 +63,12 @@ mixin _$RestTimerStateMixin {
   @override
   int get hashCode {
     final RestTimerState self = this as RestTimerState;
-    return Object.hash(self.totalSeconds, self.remainingSeconds, self.isRunning,
-        self.showRestFinishedBanner);
+    return Object.hash(
+      self.totalSeconds,
+      self.remainingSeconds,
+      self.isRunning,
+      self.showRestFinishedBanner,
+    );
   }
 
   @override

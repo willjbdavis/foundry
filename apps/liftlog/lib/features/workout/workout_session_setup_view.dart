@@ -144,7 +144,8 @@ class WorkoutSessionSetupViewModel
 
 @foundry.FoundryView(route: '/workout/setup', args: WorkoutSessionSetupArgs)
 class WorkoutSessionSetupView
-    extends FoundryView<WorkoutSessionSetupViewModel, WorkoutSessionSetupState> {
+    extends
+        FoundryView<WorkoutSessionSetupViewModel, WorkoutSessionSetupState> {
   const WorkoutSessionSetupView({required this.args, super.key});
 
   final WorkoutSessionSetupArgs args;

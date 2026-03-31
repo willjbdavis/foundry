@@ -35,25 +35,91 @@ import 'package:lift_log/features/workout/workout_summary_view.dart';
 ///
 /// Call this once at app startup after creating your [GlobalScope].
 void registerGeneratedGraph(Scope scope) {
-  scope.register<HiveDatabaseService>((_) => HiveDatabaseService(), lifetime: Lifetime.singleton);
-  scope.register<ExerciseRepository>((s) => ExerciseRepository(s.resolve<HiveDatabaseService>()), lifetime: Lifetime.singleton);
-  scope.register<RestTimerService>((_) => RestTimerService(), lifetime: Lifetime.singleton);
-  scope.register<SettingsRepository>((s) => SettingsRepository(s.resolve<HiveDatabaseService>()), lifetime: Lifetime.singleton);
-  scope.register<AppThemeModel>((s) => AppThemeModel(s.resolve<SettingsRepository>()), lifetime: Lifetime.singleton);
-  scope.register<WorkoutRepository>((s) => WorkoutRepository(s.resolve<HiveDatabaseService>()), lifetime: Lifetime.singleton);
-  scope.register<WorkoutSessionModel>((s) => WorkoutSessionModel(s.resolve<WorkoutRepository>()), lifetime: Lifetime.singleton);
-  scope.register<AboutViewModel>((_) => AboutViewModel(), lifetime: Lifetime.scoped);
-  scope.register<ExerciseEditorViewModel>((s) => ExerciseEditorViewModel(s.resolve<ExerciseRepository>()), lifetime: Lifetime.scoped);
-  scope.register<ExercisesDatabaseViewModel>((s) => ExercisesDatabaseViewModel(s.resolve<ExerciseRepository>()), lifetime: Lifetime.scoped);
-  scope.register<WorkoutDetailViewModel>((s) => WorkoutDetailViewModel(s.resolve<WorkoutRepository>()), lifetime: Lifetime.scoped);
-  scope.register<WorkoutHistoryViewModel>((s) => WorkoutHistoryViewModel(s.resolve<WorkoutRepository>()), lifetime: Lifetime.scoped);
-  scope.register<HomeViewModel>((s) => HomeViewModel(s.resolve<WorkoutSessionModel>(), s.resolve<WorkoutRepository>()), lifetime: Lifetime.scoped);
-  scope.register<SettingsViewModel>((s) => SettingsViewModel(s.resolve<AppThemeModel>()), lifetime: Lifetime.scoped);
-  scope.register<AppShellViewModel>((_) => AppShellViewModel(), lifetime: Lifetime.scoped);
-  scope.register<ExerciseLogViewModel>((s) => ExerciseLogViewModel(s.resolve<WorkoutSessionModel>(), s.resolve<RestTimerService>()), lifetime: Lifetime.scoped);
-  scope.register<ExercisePickerViewModel>((s) => ExercisePickerViewModel(s.resolve<WorkoutSessionModel>(), s.resolve<ExerciseRepository>()), lifetime: Lifetime.scoped);
-  scope.register<WorkoutSessionSetupViewModel>((s) => WorkoutSessionSetupViewModel(s.resolve<WorkoutSessionModel>()), lifetime: Lifetime.scoped);
-  scope.register<WorkoutSummaryViewModel>((s) => WorkoutSummaryViewModel(s.resolve<WorkoutSessionModel>()), lifetime: Lifetime.scoped);
+  scope.register<HiveDatabaseService>(
+    (_) => HiveDatabaseService(),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<ExerciseRepository>(
+    (s) => ExerciseRepository(s.resolve<HiveDatabaseService>()),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<RestTimerService>(
+    (_) => RestTimerService(),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<SettingsRepository>(
+    (s) => SettingsRepository(s.resolve<HiveDatabaseService>()),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<AppThemeModel>(
+    (s) => AppThemeModel(s.resolve<SettingsRepository>()),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<WorkoutRepository>(
+    (s) => WorkoutRepository(s.resolve<HiveDatabaseService>()),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<WorkoutSessionModel>(
+    (s) => WorkoutSessionModel(s.resolve<WorkoutRepository>()),
+    lifetime: Lifetime.singleton,
+  );
+  scope.register<AboutViewModel>(
+    (_) => AboutViewModel(),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<ExerciseEditorViewModel>(
+    (s) => ExerciseEditorViewModel(s.resolve<ExerciseRepository>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<ExercisesDatabaseViewModel>(
+    (s) => ExercisesDatabaseViewModel(s.resolve<ExerciseRepository>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<WorkoutDetailViewModel>(
+    (s) => WorkoutDetailViewModel(s.resolve<WorkoutRepository>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<WorkoutHistoryViewModel>(
+    (s) => WorkoutHistoryViewModel(s.resolve<WorkoutRepository>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<HomeViewModel>(
+    (s) => HomeViewModel(
+      s.resolve<WorkoutSessionModel>(),
+      s.resolve<WorkoutRepository>(),
+    ),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<SettingsViewModel>(
+    (s) => SettingsViewModel(s.resolve<AppThemeModel>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<AppShellViewModel>(
+    (_) => AppShellViewModel(),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<ExerciseLogViewModel>(
+    (s) => ExerciseLogViewModel(
+      s.resolve<WorkoutSessionModel>(),
+      s.resolve<RestTimerService>(),
+    ),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<ExercisePickerViewModel>(
+    (s) => ExercisePickerViewModel(
+      s.resolve<WorkoutSessionModel>(),
+      s.resolve<ExerciseRepository>(),
+    ),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<WorkoutSessionSetupViewModel>(
+    (s) => WorkoutSessionSetupViewModel(s.resolve<WorkoutSessionModel>()),
+    lifetime: Lifetime.scoped,
+  );
+  scope.register<WorkoutSummaryViewModel>(
+    (s) => WorkoutSummaryViewModel(s.resolve<WorkoutSessionModel>()),
+    lifetime: Lifetime.scoped,
+  );
 }
 
 /// Resolves generated singleton services and runs async initialization.
@@ -120,26 +186,85 @@ abstract final class FoundryTestScope {
 
   // ignore: prefer_function_declarations_over_variables
   static final Map<Type, void Function(Scope, Object Function(Scope))>
-      _typeRegistry = {
-    HiveDatabaseService: (s, f) => s.register<HiveDatabaseService>((inner) => f(inner) as HiveDatabaseService, lifetime: Lifetime.singleton),
-    ExerciseRepository: (s, f) => s.register<ExerciseRepository>((inner) => f(inner) as ExerciseRepository, lifetime: Lifetime.singleton),
-    RestTimerService: (s, f) => s.register<RestTimerService>((inner) => f(inner) as RestTimerService, lifetime: Lifetime.singleton),
-    SettingsRepository: (s, f) => s.register<SettingsRepository>((inner) => f(inner) as SettingsRepository, lifetime: Lifetime.singleton),
-    AppThemeModel: (s, f) => s.register<AppThemeModel>((inner) => f(inner) as AppThemeModel, lifetime: Lifetime.singleton),
-    WorkoutRepository: (s, f) => s.register<WorkoutRepository>((inner) => f(inner) as WorkoutRepository, lifetime: Lifetime.singleton),
-    WorkoutSessionModel: (s, f) => s.register<WorkoutSessionModel>((inner) => f(inner) as WorkoutSessionModel, lifetime: Lifetime.singleton),
-    AboutViewModel: (s, f) => s.register<AboutViewModel>((inner) => f(inner) as AboutViewModel, lifetime: Lifetime.scoped),
-    ExerciseEditorViewModel: (s, f) => s.register<ExerciseEditorViewModel>((inner) => f(inner) as ExerciseEditorViewModel, lifetime: Lifetime.scoped),
-    ExercisesDatabaseViewModel: (s, f) => s.register<ExercisesDatabaseViewModel>((inner) => f(inner) as ExercisesDatabaseViewModel, lifetime: Lifetime.scoped),
-    WorkoutDetailViewModel: (s, f) => s.register<WorkoutDetailViewModel>((inner) => f(inner) as WorkoutDetailViewModel, lifetime: Lifetime.scoped),
-    WorkoutHistoryViewModel: (s, f) => s.register<WorkoutHistoryViewModel>((inner) => f(inner) as WorkoutHistoryViewModel, lifetime: Lifetime.scoped),
-    HomeViewModel: (s, f) => s.register<HomeViewModel>((inner) => f(inner) as HomeViewModel, lifetime: Lifetime.scoped),
-    SettingsViewModel: (s, f) => s.register<SettingsViewModel>((inner) => f(inner) as SettingsViewModel, lifetime: Lifetime.scoped),
-    AppShellViewModel: (s, f) => s.register<AppShellViewModel>((inner) => f(inner) as AppShellViewModel, lifetime: Lifetime.scoped),
-    ExerciseLogViewModel: (s, f) => s.register<ExerciseLogViewModel>((inner) => f(inner) as ExerciseLogViewModel, lifetime: Lifetime.scoped),
-    ExercisePickerViewModel: (s, f) => s.register<ExercisePickerViewModel>((inner) => f(inner) as ExercisePickerViewModel, lifetime: Lifetime.scoped),
-    WorkoutSessionSetupViewModel: (s, f) => s.register<WorkoutSessionSetupViewModel>((inner) => f(inner) as WorkoutSessionSetupViewModel, lifetime: Lifetime.scoped),
-    WorkoutSummaryViewModel: (s, f) => s.register<WorkoutSummaryViewModel>((inner) => f(inner) as WorkoutSummaryViewModel, lifetime: Lifetime.scoped),
+  _typeRegistry = {
+    HiveDatabaseService: (s, f) => s.register<HiveDatabaseService>(
+      (inner) => f(inner) as HiveDatabaseService,
+      lifetime: Lifetime.singleton,
+    ),
+    ExerciseRepository: (s, f) => s.register<ExerciseRepository>(
+      (inner) => f(inner) as ExerciseRepository,
+      lifetime: Lifetime.singleton,
+    ),
+    RestTimerService: (s, f) => s.register<RestTimerService>(
+      (inner) => f(inner) as RestTimerService,
+      lifetime: Lifetime.singleton,
+    ),
+    SettingsRepository: (s, f) => s.register<SettingsRepository>(
+      (inner) => f(inner) as SettingsRepository,
+      lifetime: Lifetime.singleton,
+    ),
+    AppThemeModel: (s, f) => s.register<AppThemeModel>(
+      (inner) => f(inner) as AppThemeModel,
+      lifetime: Lifetime.singleton,
+    ),
+    WorkoutRepository: (s, f) => s.register<WorkoutRepository>(
+      (inner) => f(inner) as WorkoutRepository,
+      lifetime: Lifetime.singleton,
+    ),
+    WorkoutSessionModel: (s, f) => s.register<WorkoutSessionModel>(
+      (inner) => f(inner) as WorkoutSessionModel,
+      lifetime: Lifetime.singleton,
+    ),
+    AboutViewModel: (s, f) => s.register<AboutViewModel>(
+      (inner) => f(inner) as AboutViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    ExerciseEditorViewModel: (s, f) => s.register<ExerciseEditorViewModel>(
+      (inner) => f(inner) as ExerciseEditorViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    ExercisesDatabaseViewModel: (s, f) =>
+        s.register<ExercisesDatabaseViewModel>(
+          (inner) => f(inner) as ExercisesDatabaseViewModel,
+          lifetime: Lifetime.scoped,
+        ),
+    WorkoutDetailViewModel: (s, f) => s.register<WorkoutDetailViewModel>(
+      (inner) => f(inner) as WorkoutDetailViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    WorkoutHistoryViewModel: (s, f) => s.register<WorkoutHistoryViewModel>(
+      (inner) => f(inner) as WorkoutHistoryViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    HomeViewModel: (s, f) => s.register<HomeViewModel>(
+      (inner) => f(inner) as HomeViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    SettingsViewModel: (s, f) => s.register<SettingsViewModel>(
+      (inner) => f(inner) as SettingsViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    AppShellViewModel: (s, f) => s.register<AppShellViewModel>(
+      (inner) => f(inner) as AppShellViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    ExerciseLogViewModel: (s, f) => s.register<ExerciseLogViewModel>(
+      (inner) => f(inner) as ExerciseLogViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    ExercisePickerViewModel: (s, f) => s.register<ExercisePickerViewModel>(
+      (inner) => f(inner) as ExercisePickerViewModel,
+      lifetime: Lifetime.scoped,
+    ),
+    WorkoutSessionSetupViewModel: (s, f) =>
+        s.register<WorkoutSessionSetupViewModel>(
+          (inner) => f(inner) as WorkoutSessionSetupViewModel,
+          lifetime: Lifetime.scoped,
+        ),
+    WorkoutSummaryViewModel: (s, f) => s.register<WorkoutSummaryViewModel>(
+      (inner) => f(inner) as WorkoutSummaryViewModel,
+      lifetime: Lifetime.scoped,
+    ),
   };
 
   static void _registerByType(

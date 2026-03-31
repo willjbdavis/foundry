@@ -10,6 +10,11 @@ import 'src/generators/service_generator.dart';
 import 'src/generators/view_generator.dart';
 import 'src/generators/container_generator.dart';
 
+/// Foundry code generator entrypoints used by build_runner.
+///
+/// This library exports generator classes and builder factories used by
+/// package build configuration. Most apps consume these through build.yaml
+/// builder references rather than direct code usage.
 export 'src/generators/view_state_generator.dart';
 export 'src/generators/service_state_generator.dart';
 export 'src/generators/view_model_generator.dart';
@@ -18,27 +23,35 @@ export 'src/generators/view_generator.dart';
 export 'src/generators/container_generator.dart';
 export 'src/generators/generator_utils.dart';
 
+/// Builder factory for immutable view-state mixin generation.
 Builder viewStateBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewStateGenerator()], 'view_state_builder');
 
+/// Builder factory for immutable service-state mixin generation.
 Builder serviceStateBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ServiceStateGenerator()], 'service_state_builder');
 
+/// Builder factory for ViewModel helper generation.
 Builder viewModelBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewModelGenerator()], 'view_model_builder');
 
+/// Builder factory for service annotation validation generation.
 Builder serviceBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ServiceGenerator()], 'service_builder');
 
+/// Builder factory for route, deep-link, and push-extension generation.
 Builder viewBuilderFactory(BuilderOptions options) =>
     SharedPartBuilder([ViewGenerator()], 'view_builder');
 
+/// Builder factory that emits app-level container registration output.
 Builder containerBuilderFactory(BuilderOptions options) =>
     AppContainerBuilder();
 
+/// Builder factory that emits app-level deep-link resolver output.
 Builder deepLinksBuilderFactory(BuilderOptions options) =>
     AppDeepLinksBuilder();
 
+/// Builder that scans app module exports and emits deep-link resolver code.
 class AppDeepLinksBuilder implements Builder {
   @override
   final Map<String, List<String>> buildExtensions = const {

@@ -25,13 +25,16 @@ class ExerciseEditorViewRoute extends RouteConfig<bool?> {
   @override
   Route<bool?> build(BuildContext context) {
     return MaterialPageRoute<bool?>(
-        builder: (_) => ExerciseEditorView(args: args));
+      builder: (_) => ExerciseEditorView(args: args),
+    );
   }
 
   @override
   Route<bool?> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<bool?>(
-        settings: settings, builder: (_) => ExerciseEditorView(args: args));
+      settings: settings,
+      builder: (_) => ExerciseEditorView(args: args),
+    );
   }
 
   /// Returns a [ExerciseEditorView Route] if [uri] matches the deep link pattern,
@@ -61,7 +64,7 @@ class ExerciseEditorViewRoute extends RouteConfig<bool?> {
     }
     final String? returnToWorkoutDraftIdRaw =
         params['returnToWorkoutDraftId'] ??
-            uri.queryParameters['returnToWorkoutDraftId'];
+        uri.queryParameters['returnToWorkoutDraftId'];
     final Object? returnToWorkoutDraftIdValue;
     if (returnToWorkoutDraftIdRaw == null) {
       returnToWorkoutDraftIdValue = null;
@@ -194,8 +197,15 @@ mixin _$ExerciseEditorStateMixin {
   @override
   int get hashCode {
     final ExerciseEditorState self = this as ExerciseEditorState;
-    return Object.hash(self.isLoading, self.isSaving, self.isEditMode,
-        self.exerciseId, self.name, self.description, self.error);
+    return Object.hash(
+      self.isLoading,
+      self.isSaving,
+      self.isEditMode,
+      self.exerciseId,
+      self.name,
+      self.description,
+      self.error,
+    );
   }
 
   @override

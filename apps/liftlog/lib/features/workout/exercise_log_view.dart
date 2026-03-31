@@ -205,7 +205,8 @@ class ExerciseLogViewModel extends FoundryViewModel<ExerciseLogState> {
 }
 
 @foundry.FoundryView(route: '/workout/log', args: ExerciseLogArgs)
-class ExerciseLogView extends FoundryView<ExerciseLogViewModel, ExerciseLogState> {
+class ExerciseLogView
+    extends FoundryView<ExerciseLogViewModel, ExerciseLogState> {
   const ExerciseLogView({required this.args, super.key});
 
   final ExerciseLogArgs args;

@@ -63,7 +63,11 @@ mixin _$WorkoutSessionStateMixin {
   int get hashCode {
     final WorkoutSessionState self = this as WorkoutSessionState;
     return Object.hash(
-        self.isLoading, self.isSaving, self.activeDraft, self.error);
+      self.isLoading,
+      self.isSaving,
+      self.activeDraft,
+      self.error,
+    );
   }
 
   @override

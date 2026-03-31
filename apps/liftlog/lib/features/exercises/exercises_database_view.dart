@@ -26,7 +26,8 @@ class ExercisesDatabaseState with _$ExercisesDatabaseStateMixin {
 }
 
 @foundry.FoundryViewModel()
-class ExercisesDatabaseViewModel extends FoundryViewModel<ExercisesDatabaseState> {
+class ExercisesDatabaseViewModel
+    extends FoundryViewModel<ExercisesDatabaseState> {
   ExercisesDatabaseViewModel(this._exerciseRepository) {
     emitNewState(const ExercisesDatabaseState());
   }

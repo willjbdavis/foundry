@@ -28,7 +28,9 @@ class SettingsViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const SettingsView());
+      settings: settings,
+      builder: (_) => const SettingsView(),
+    );
   }
 
   /// Returns a [SettingsView Route] if [uri] matches the deep link pattern,

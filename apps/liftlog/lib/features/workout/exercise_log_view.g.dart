@@ -30,7 +30,9 @@ class ExerciseLogViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => ExerciseLogView(args: args));
+      settings: settings,
+      builder: (_) => ExerciseLogView(args: args),
+    );
   }
 }
 
@@ -117,23 +119,23 @@ mixin _$ExerciseLogStateMixin {
           : exercises as List<LoggedExercise>,
       selectedExerciseIndex:
           identical(selectedExerciseIndex, _$ExerciseLogStateSentinel)
-              ? self.selectedExerciseIndex
-              : selectedExerciseIndex as int,
+          ? self.selectedExerciseIndex
+          : selectedExerciseIndex as int,
       timerRemainingSeconds:
           identical(timerRemainingSeconds, _$ExerciseLogStateSentinel)
-              ? self.timerRemainingSeconds
-              : timerRemainingSeconds as int,
+          ? self.timerRemainingSeconds
+          : timerRemainingSeconds as int,
       timerTotalSeconds:
           identical(timerTotalSeconds, _$ExerciseLogStateSentinel)
-              ? self.timerTotalSeconds
-              : timerTotalSeconds as int,
+          ? self.timerTotalSeconds
+          : timerTotalSeconds as int,
       isTimerRunning: identical(isTimerRunning, _$ExerciseLogStateSentinel)
           ? self.isTimerRunning
           : isTimerRunning as bool,
       showRestFinishedBanner:
           identical(showRestFinishedBanner, _$ExerciseLogStateSentinel)
-              ? self.showRestFinishedBanner
-              : showRestFinishedBanner as bool,
+          ? self.showRestFinishedBanner
+          : showRestFinishedBanner as bool,
       repsInput: identical(repsInput, _$ExerciseLogStateSentinel)
           ? self.repsInput
           : repsInput as String,
@@ -171,19 +173,20 @@ mixin _$ExerciseLogStateMixin {
   int get hashCode {
     final ExerciseLogState self = this as ExerciseLogState;
     return Object.hash(
-        self.isLoading,
-        self.isSaving,
-        self.draftTitle,
-        self.draftId,
-        self.exercises,
-        self.selectedExerciseIndex,
-        self.timerRemainingSeconds,
-        self.timerTotalSeconds,
-        self.isTimerRunning,
-        self.showRestFinishedBanner,
-        self.repsInput,
-        self.weightInput,
-        self.error);
+      self.isLoading,
+      self.isSaving,
+      self.draftTitle,
+      self.draftId,
+      self.exercises,
+      self.selectedExerciseIndex,
+      self.timerRemainingSeconds,
+      self.timerTotalSeconds,
+      self.isTimerRunning,
+      self.showRestFinishedBanner,
+      self.repsInput,
+      self.weightInput,
+      self.error,
+    );
   }
 
   @override

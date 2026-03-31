@@ -28,7 +28,9 @@ class AboutViewRoute extends RouteConfig<void> {
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const AboutView());
+      settings: settings,
+      builder: (_) => const AboutView(),
+    );
   }
 
   /// Returns a [AboutView Route] if [uri] matches the deep link pattern,

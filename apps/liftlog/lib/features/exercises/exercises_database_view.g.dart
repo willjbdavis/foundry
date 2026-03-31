@@ -23,13 +23,16 @@ class ExercisesDatabaseViewRoute extends RouteConfig<void> {
   @override
   Route<void> build(BuildContext context) {
     return MaterialPageRoute<void>(
-        builder: (_) => const ExercisesDatabaseView());
+      builder: (_) => const ExercisesDatabaseView(),
+    );
   }
 
   @override
   Route<void> buildDeepLink(RouteSettings settings) {
     return MaterialPageRoute<void>(
-        settings: settings, builder: (_) => const ExercisesDatabaseView());
+      settings: settings,
+      builder: (_) => const ExercisesDatabaseView(),
+    );
   }
 
   /// Returns a [ExercisesDatabaseView Route] if [uri] matches the deep link pattern,
@@ -142,7 +145,11 @@ mixin _$ExercisesDatabaseStateMixin {
   int get hashCode {
     final ExercisesDatabaseState self = this as ExercisesDatabaseState;
     return Object.hash(
-        self.isLoading, self.searchQuery, self.exercises, self.error);
+      self.isLoading,
+      self.searchQuery,
+      self.exercises,
+      self.error,
+    );
   }
 
   @override

@@ -7,8 +7,12 @@ import 'package:foundry_core/foundry_core.dart';
 class FoundryScope extends InheritedWidget {
   const FoundryScope({required this.scope, required super.child, super.key});
 
+  /// Scope provided to descendants.
   final Scope scope;
 
+  /// Reads the nearest [Scope] from the widget tree.
+  ///
+  /// Throws [StateError] when no [FoundryScope] is available in ancestors.
   static Scope of(final BuildContext context) {
     final FoundryScope? inherited = context
         .dependOnInheritedWidgetOfExactType<FoundryScope>();
@@ -29,6 +33,7 @@ class FoundryScope extends InheritedWidget {
   }
 }
 
+/// Internal widget that creates and disposes a child scope automatically.
 class _FoundryAutoChildScope extends StatefulWidget {
   const _FoundryAutoChildScope({required this.child, super.key});
 
@@ -42,6 +47,7 @@ class _FoundryAutoChildScopeState extends State<_FoundryAutoChildScope> {
   Scope? _scope;
   Scope? _parentScope;
 
+  /// Recreates the child scope whenever the inherited parent scope changes.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();

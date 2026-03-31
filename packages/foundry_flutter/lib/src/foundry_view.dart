@@ -9,8 +9,10 @@ abstract class FoundryView<
   TState
 >
     extends core.FoundryView<TViewModel, TState> {
+  /// Creates a Foundry Flutter view bound to [TViewModel].
   const FoundryView({super.key});
 
+  /// Creates the default lifecycle-aware [State] implementation.
   @override
   State<FoundryView<TViewModel, TState>> createState() =>
       _DefaultFoundryState<TViewModel, TState>();
